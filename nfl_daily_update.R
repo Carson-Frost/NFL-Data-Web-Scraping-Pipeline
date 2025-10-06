@@ -62,7 +62,6 @@ tryCatch({
       passing_tds = sum(pass_touchdown, na.rm = TRUE),
       interceptions = sum(interception, na.rm = TRUE),
       sacks = sum(sack, na.rm = TRUE),
-      sack_yards = sum(sack_yards, na.rm = TRUE),
       .groups = 'drop'
     ) %>%
     filter(attempts >= 5)  # Minimum 5 attempts
@@ -97,7 +96,6 @@ tryCatch({
       passing_tds = sum(pass_touchdown, na.rm = TRUE),
       interceptions = sum(interception, na.rm = TRUE),
       sacks = sum(sack, na.rm = TRUE),
-      sack_yards = sum(sack_yards, na.rm = TRUE),
       .groups = 'drop'
     ) %>%
     filter(attempts >= 20)  # Minimum 20 attempts for season stats

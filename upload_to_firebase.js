@@ -37,24 +37,28 @@ async function uploadCollection(collectionName, data, docIdFunc) {
         return;
     }
 
-    const batch = db.batch();
+    let batch = db.batch();
     let count = 0;
+    let batchCount = 0;
 
     for (const item of data) {
         const docId = docIdFunc(item);
         const docRef = db.collection(collectionName).doc(docId);
         batch.set(docRef, item, { merge: true }); // merge: true updates without overwriting
         count++;
+        batchCount++;
 
         // Firestore batch limit is 500, so commit and start new batch if needed
-        if (count % 500 === 0) {
+        if (batchCount >= 500) {
             await batch.commit();
             console.log(`   ✓ Committed ${count} documents...`);
+            batch = db.batch(); // Create new batch
+            batchCount = 0;
         }
     }
 
     // Commit remaining documents
-    if (count % 500 !== 0) {
+    if (batchCount > 0) {
         await batch.commit();
     }
 
