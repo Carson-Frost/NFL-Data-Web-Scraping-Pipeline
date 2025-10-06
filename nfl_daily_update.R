@@ -10,6 +10,7 @@ suppressPackageStartupMessages({
   library(nflfastR)
   library(dplyr)
   library(jsonlite)
+  library(tidyr)
 })
 
 # Configuration

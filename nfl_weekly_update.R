@@ -10,6 +10,7 @@ suppressPackageStartupMessages({
   library(nflfastR)
   library(dplyr)
   library(jsonlite)
+  library(tidyr)
 })
 
 # Configuration
@@ -39,7 +40,7 @@ log_message("=== WEEKLY UPDATE: Starting ===")
 log_message("Fetching schedule and scores...")
 
 tryCatch({
-  schedules <- load_schedules(SEASON)
+  schedules <- fast_scraper_schedules(SEASON)
 
   games_schedule <- schedules %>%
     select(game_id, season, game_type, week, gameday, weekday, gametime,
@@ -69,7 +70,7 @@ tryCatch({
 log_message("Fetching rosters...")
 
 tryCatch({
-  rosters <- load_rosters(SEASON)
+  rosters <- fast_scraper_rosters(SEASON)
 
   rosters_clean <- rosters %>%
     select(season, team, position, depth_chart_position, jersey_number,
@@ -98,7 +99,7 @@ log_message("Calculating standings...")
 
 tryCatch({
   # Get team records from schedules
-  standings <- load_schedules(SEASON) %>%
+  standings <- fast_scraper_schedules(SEASON) %>%
     filter(!is.na(result)) %>%
     mutate(
       home_win = ifelse(result > 0, 1, 0),
