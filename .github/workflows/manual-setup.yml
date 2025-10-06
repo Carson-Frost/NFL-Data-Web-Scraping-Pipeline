@@ -1,0 +1,56 @@
+# ==============================================================================
+# .github/workflows/manual-setup.yml
+# Only runs manually when triggered (for one-time setup)
+# ==============================================================================
+---
+name: One-Time NFL Setup
+
+on:
+  workflow_dispatch: # Only manual trigger, no schedule
+
+jobs:
+  setup-team-info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.0'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+
+      - name: Install R packages
+        run: |
+          R -e 'install.packages(c("nflfastR", "dplyr", "jsonlite"), repos="https://cloud.r-project.org")'
+
+      - name: Run one-time setup script
+        run: Rscript nfl_onetime_setup.R
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Firebase Admin SDK
+        run: npm install firebase-admin
+
+      - name: Upload team info to Firebase
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        run: node upload_to_firebase.js
+
+      - name: Commit and push if changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add nfl_data_output/teams_info.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update team info [skip ci]" && git push)
