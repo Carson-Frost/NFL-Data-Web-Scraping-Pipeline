@@ -31,7 +31,24 @@ jobs:
           R -e 'install.packages(c("nflfastR", "dplyr", "jsonlite"), repos="https://cloud.r-project.org")'
 
       - name: Run one-time setup script
-        run: Rscript nfl_onetime_setup.R
+        run: |
+          echo "Running R script..."
+          Rscript nfl_onetime_setup.R
+          echo "R script completed"
+
+      - name: Check if files were created
+        run: |
+          echo "Checking nfl_data_output directory contents:"
+          ls -la nfl_data_output/ || echo "Directory is empty or doesn't exist"
+          echo "Checking if teams_info.json exists:"
+          if [ -f "nfl_data_output/teams_info.json" ]; then
+            echo "✅ teams_info.json found!"
+            ls -la nfl_data_output/teams_info.json
+          else
+            echo "❌ teams_info.json NOT found!"
+            echo "This means the R script failed to create the file"
+            exit 1
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -52,5 +69,10 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add nfl_data_output/teams_info.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update team info [skip ci]" && git push)
+          # Check if the file exists before trying to add it
+          if [ -f "nfl_data_output/teams_info.json" ]; then
+            git add nfl_data_output/teams_info.json
+            git diff --quiet && git diff --staged --quiet || (git commit -m "Update team info [skip ci]" && git push)
+          else
+            echo "teams_info.json not found, skipping commit"
+          fi
