@@ -13,7 +13,7 @@ suppressPackageStartupMessages({
 
 # Configuration
 # Allow environment variables to override defaults
-SEASONS_STR <- Sys.getenv("SEASONS", "2020:2024")
+SEASONS_STR <- Sys.getenv("SEASONS", "2019:2025")
 SEASON_TYPE <- Sys.getenv("SEASON_TYPE", "REG")
 FETCH_WEEKLY <- as.logical(Sys.getenv("FETCH_WEEKLY", "FALSE"))
 
