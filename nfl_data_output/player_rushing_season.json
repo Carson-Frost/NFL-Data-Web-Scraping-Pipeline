@@ -1,0 +1,1361 @@
+[
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Abdullah",
+    "posteam": "LV",
+    "attempts": 66,
+    "rushing_yards": 311,
+    "rushing_tds": 2,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Ekeler",
+    "posteam": "WAS",
+    "attempts": 99,
+    "rushing_yards": 456,
+    "rushing_tds": 4,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Estime",
+    "posteam": "DEN",
+    "attempts": 76,
+    "rushing_yards": 310,
+    "rushing_tds": 2,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Gibson",
+    "posteam": "NE",
+    "attempts": 120,
+    "rushing_yards": 538,
+    "rushing_tds": 1,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Ingold",
+    "posteam": "MIA",
+    "attempts": 10,
+    "rushing_yards": 17,
+    "rushing_tds": 1,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Jones",
+    "posteam": "MIN",
+    "attempts": 268,
+    "rushing_yards": 1186,
+    "rushing_tds": 5,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Kamara",
+    "posteam": "NO",
+    "attempts": 228,
+    "rushing_yards": 950,
+    "rushing_tds": 6,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Mattison",
+    "posteam": "LV",
+    "attempts": 134,
+    "rushing_yards": 420,
+    "rushing_tds": 4,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.O'Connell",
+    "posteam": "LV",
+    "attempts": 11,
+    "rushing_yards": 17,
+    "rushing_tds": 1,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "A.Richardson",
+    "posteam": "IND",
+    "attempts": 59,
+    "rushing_yards": 324,
+    "rushing_tds": 5,
+    "fumbles": 5
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Allen",
+    "posteam": "NYJ",
+    "attempts": 92,
+    "rushing_yards": 334,
+    "rushing_tds": 2,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Corum",
+    "posteam": "LA",
+    "attempts": 58,
+    "rushing_yards": 207,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Hall",
+    "posteam": "NYJ",
+    "attempts": 212,
+    "rushing_yards": 876,
+    "rushing_tds": 5,
+    "fumbles": 5
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Irving",
+    "posteam": "TB",
+    "attempts": 224,
+    "rushing_yards": 1199,
+    "rushing_tds": 8,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Mayfield",
+    "posteam": "TB",
+    "attempts": 14,
+    "rushing_yards": 20,
+    "rushing_tds": 2,
+    "fumbles": 8
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Nix",
+    "posteam": "DEN",
+    "attempts": 29,
+    "rushing_yards": 89,
+    "rushing_tds": 2,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Purdy",
+    "posteam": "SF",
+    "attempts": 17,
+    "rushing_yards": 28,
+    "rushing_tds": 3,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Robinson",
+    "posteam": "ATL",
+    "attempts": 305,
+    "rushing_yards": 1456,
+    "rushing_tds": 14,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "B.Robinson",
+    "posteam": "WAS",
+    "attempts": 223,
+    "rushing_yards": 928,
+    "rushing_tds": 10,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Akers",
+    "posteam": "HOU",
+    "attempts": 40,
+    "rushing_yards": 147,
+    "rushing_tds": 1,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Akers",
+    "posteam": "MIN",
+    "attempts": 69,
+    "rushing_yards": 336,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Brooks",
+    "posteam": "GB",
+    "attempts": 36,
+    "rushing_yards": 183,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Brown",
+    "posteam": "CIN",
+    "attempts": 230,
+    "rushing_yards": 990,
+    "rushing_tds": 7,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Edwards-Helaire",
+    "posteam": "NO",
+    "attempts": 13,
+    "rushing_yards": 46,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Hubbard",
+    "posteam": "CAR",
+    "attempts": 251,
+    "rushing_yards": 1195,
+    "rushing_tds": 10,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Lamb",
+    "posteam": "DAL",
+    "attempts": 14,
+    "rushing_yards": 70,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.McCaffrey",
+    "posteam": "SF",
+    "attempts": 50,
+    "rushing_yards": 202,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Patterson",
+    "posteam": "PIT",
+    "attempts": 32,
+    "rushing_yards": 135,
+    "rushing_tds": 0,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Reynolds",
+    "posteam": "DET",
+    "attempts": 31,
+    "rushing_yards": 139,
+    "rushing_tds": 0,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Rodriguez",
+    "posteam": "WAS",
+    "attempts": 35,
+    "rushing_yards": 173,
+    "rushing_tds": 2,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Rush",
+    "posteam": "DAL",
+    "attempts": 15,
+    "rushing_yards": 15,
+    "rushing_tds": 0,
+    "fumbles": 8
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Steele",
+    "posteam": "KC",
+    "attempts": 56,
+    "rushing_yards": 183,
+    "rushing_tds": 0,
+    "fumbles": 4
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "C.Williams",
+    "posteam": "CHI",
+    "attempts": 25,
+    "rushing_yards": 104,
+    "rushing_tds": 0,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Achane",
+    "posteam": "MIA",
+    "attempts": 203,
+    "rushing_yards": 907,
+    "rushing_tds": 6,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Davis",
+    "posteam": "LAC",
+    "attempts": 13,
+    "rushing_yards": 36,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Foreman",
+    "posteam": "CLE",
+    "attempts": 71,
+    "rushing_yards": 232,
+    "rushing_tds": 0,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Henry",
+    "posteam": "BAL",
+    "attempts": 367,
+    "rushing_yards": 2191,
+    "rushing_tds": 19,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Johnson",
+    "posteam": "JAX",
+    "attempts": 32,
+    "rushing_yards": 143,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Jones",
+    "posteam": "NYG",
+    "attempts": 45,
+    "rushing_yards": 194,
+    "rushing_tds": 2,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Montgomery",
+    "posteam": "DET",
+    "attempts": 193,
+    "rushing_yards": 803,
+    "rushing_tds": 12,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Moore",
+    "posteam": "CHI",
+    "attempts": 14,
+    "rushing_yards": 75,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Ogunbowale",
+    "posteam": "HOU",
+    "attempts": 32,
+    "rushing_yards": 126,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Pierce",
+    "posteam": "HOU",
+    "attempts": 46,
+    "rushing_yards": 318,
+    "rushing_tds": 2,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Samuel",
+    "posteam": "SF",
+    "attempts": 42,
+    "rushing_yards": 136,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Singletary",
+    "posteam": "NYG",
+    "attempts": 113,
+    "rushing_yards": 437,
+    "rushing_tds": 4,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Swift",
+    "posteam": "CHI",
+    "attempts": 253,
+    "rushing_yards": 959,
+    "rushing_tds": 6,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Thompson-Robinson",
+    "posteam": "CLE",
+    "attempts": 14,
+    "rushing_yards": 85,
+    "rushing_tds": 0,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "D.Vaughn",
+    "posteam": "DAL",
+    "attempts": 17,
+    "rushing_yards": 70,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "E.Demercado",
+    "posteam": "ARI",
+    "attempts": 24,
+    "rushing_yards": 223,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "E.Elliott",
+    "posteam": "DAL",
+    "attempts": 74,
+    "rushing_yards": 226,
+    "rushing_tds": 3,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "E.Gray",
+    "posteam": "NYG",
+    "attempts": 14,
+    "rushing_yards": 31,
+    "rushing_tds": 0,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "Em.Wilson",
+    "posteam": "GB",
+    "attempts": 106,
+    "rushing_yards": 508,
+    "rushing_tds": 4,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "G.Edwards",
+    "posteam": "LAC",
+    "attempts": 109,
+    "rushing_yards": 387,
+    "rushing_tds": 4,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "G.Smith",
+    "posteam": "SEA",
+    "attempts": 16,
+    "rushing_yards": 30,
+    "rushing_tds": 0,
+    "fumbles": 6
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "H.Haskins",
+    "posteam": "LAC",
+    "attempts": 35,
+    "rushing_yards": 94,
+    "rushing_tds": 2,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "H.Luepke",
+    "posteam": "DAL",
+    "attempts": 12,
+    "rushing_yards": 38,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "I.Davis",
+    "posteam": "NYJ",
+    "attempts": 30,
+    "rushing_yards": 174,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "I.Guerendo",
+    "posteam": "SF",
+    "attempts": 84,
+    "rushing_yards": 420,
+    "rushing_tds": 4,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "I.Pacheco",
+    "posteam": "KC",
+    "attempts": 96,
+    "rushing_yards": 347,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Allen",
+    "posteam": "BUF",
+    "attempts": 72,
+    "rushing_yards": 218,
+    "rushing_tds": 11,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Chestnut",
+    "posteam": "TEN",
+    "attempts": 22,
+    "rushing_yards": 102,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Conner",
+    "posteam": "ARI",
+    "attempts": 239,
+    "rushing_yards": 1094,
+    "rushing_tds": 8,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Cook",
+    "posteam": "BUF",
+    "attempts": 260,
+    "rushing_yards": 1281,
+    "rushing_tds": 19,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Daniels",
+    "posteam": "WAS",
+    "attempts": 83,
+    "rushing_yards": 371,
+    "rushing_tds": 6,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Dobbins",
+    "posteam": "LAC",
+    "attempts": 204,
+    "rushing_yards": 931,
+    "rushing_tds": 9,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Fields",
+    "posteam": "PIT",
+    "attempts": 39,
+    "rushing_yards": 180,
+    "rushing_tds": 2,
+    "fumbles": 4
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Ford",
+    "posteam": "CLE",
+    "attempts": 104,
+    "rushing_yards": 565,
+    "rushing_tds": 3,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Gibbs",
+    "posteam": "DET",
+    "attempts": 264,
+    "rushing_yards": 1517,
+    "rushing_tds": 18,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Hasty",
+    "posteam": "NE",
+    "attempts": 20,
+    "rushing_yards": 69,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Herbert",
+    "posteam": "LAC",
+    "attempts": 18,
+    "rushing_yards": 30,
+    "rushing_tds": 1,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Hill",
+    "posteam": "BAL",
+    "attempts": 59,
+    "rushing_yards": 285,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Hurts",
+    "posteam": "PHI",
+    "attempts": 115,
+    "rushing_yards": 389,
+    "rushing_tds": 19,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Jacobs",
+    "posteam": "GB",
+    "attempts": 321,
+    "rushing_yards": 1410,
+    "rushing_tds": 16,
+    "fumbles": 5
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Mason",
+    "posteam": "SF",
+    "attempts": 153,
+    "rushing_yards": 789,
+    "rushing_tds": 3,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.McClellan",
+    "posteam": "ATL",
+    "attempts": 13,
+    "rushing_yards": 32,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.McLaughlin",
+    "posteam": "DEN",
+    "attempts": 115,
+    "rushing_yards": 494,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.McNichols",
+    "posteam": "WAS",
+    "attempts": 61,
+    "rushing_yards": 270,
+    "rushing_tds": 5,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Mims",
+    "posteam": "NO",
+    "attempts": 20,
+    "rushing_yards": 70,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Mixon",
+    "posteam": "HOU",
+    "attempts": 290,
+    "rushing_yards": 1210,
+    "rushing_tds": 13,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Reed",
+    "posteam": "GB",
+    "attempts": 20,
+    "rushing_yards": 163,
+    "rushing_tds": 1,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Taylor",
+    "posteam": "HOU",
+    "attempts": 10,
+    "rushing_yards": 44,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Taylor",
+    "posteam": "IND",
+    "attempts": 305,
+    "rushing_yards": 1431,
+    "rushing_tds": 11,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Warren",
+    "posteam": "PIT",
+    "attempts": 122,
+    "rushing_yards": 517,
+    "rushing_tds": 1,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Williams",
+    "posteam": "DEN",
+    "attempts": 146,
+    "rushing_yards": 542,
+    "rushing_tds": 4,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Wilson",
+    "posteam": "MIA",
+    "attempts": 16,
+    "rushing_yards": 57,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Winston",
+    "posteam": "CLE",
+    "attempts": 16,
+    "rushing_yards": 38,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "J.Wright",
+    "posteam": "MIA",
+    "attempts": 68,
+    "rushing_yards": 249,
+    "rushing_tds": 0,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "Ja.Williams",
+    "posteam": "NO",
+    "attempts": 48,
+    "rushing_yards": 164,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Gainwell",
+    "posteam": "PHI",
+    "attempts": 88,
+    "rushing_yards": 332,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Herbert",
+    "posteam": "CIN",
+    "attempts": 28,
+    "rushing_yards": 114,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Hunt",
+    "posteam": "KC",
+    "attempts": 228,
+    "rushing_yards": 845,
+    "rushing_tds": 9,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.McIntosh",
+    "posteam": "SEA",
+    "attempts": 31,
+    "rushing_yards": 172,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Miller",
+    "posteam": "NO",
+    "attempts": 39,
+    "rushing_yards": 148,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Mitchell",
+    "posteam": "BAL",
+    "attempts": 15,
+    "rushing_yards": 30,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Murray",
+    "posteam": "ARI",
+    "attempts": 32,
+    "rushing_yards": 224,
+    "rushing_tds": 4,
+    "fumbles": 4
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Turpin",
+    "posteam": "DAL",
+    "attempts": 16,
+    "rushing_yards": 92,
+    "rushing_tds": 0,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Vidal",
+    "posteam": "LAC",
+    "attempts": 43,
+    "rushing_yards": 155,
+    "rushing_tds": 0,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Walker",
+    "posteam": "SEA",
+    "attempts": 153,
+    "rushing_yards": 573,
+    "rushing_tds": 7,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "K.Williams",
+    "posteam": "LA",
+    "attempts": 351,
+    "rushing_yards": 1481,
+    "rushing_tds": 14,
+    "fumbles": 6
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "L.Jackson",
+    "posteam": "BAL",
+    "attempts": 94,
+    "rushing_yards": 575,
+    "rushing_tds": 4,
+    "fumbles": 8
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Boone",
+    "posteam": "CAR",
+    "attempts": 13,
+    "rushing_yards": 51,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Carter",
+    "posteam": "ARI",
+    "attempts": 35,
+    "rushing_yards": 131,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Jones",
+    "posteam": "JAX",
+    "attempts": 10,
+    "rushing_yards": 14,
+    "rushing_tds": 1,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Mariota",
+    "posteam": "WAS",
+    "attempts": 14,
+    "rushing_yards": 70,
+    "rushing_tds": 1,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Mims",
+    "posteam": "DEN",
+    "attempts": 15,
+    "rushing_yards": 43,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Rudolph",
+    "posteam": "TEN",
+    "attempts": 11,
+    "rushing_yards": 14,
+    "rushing_tds": 0,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Sanders",
+    "posteam": "CAR",
+    "attempts": 55,
+    "rushing_yards": 205,
+    "rushing_tds": 2,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "M.Stafford",
+    "posteam": "LA",
+    "attempts": 13,
+    "rushing_yards": 21,
+    "rushing_tds": 0,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "N.Chubb",
+    "posteam": "CLE",
+    "attempts": 102,
+    "rushing_yards": 332,
+    "rushing_tds": 3,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "N.Harris",
+    "posteam": "PIT",
+    "attempts": 269,
+    "rushing_yards": 1060,
+    "rushing_tds": 6,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "P.Nacua",
+    "posteam": "LA",
+    "attempts": 12,
+    "rushing_yards": 53,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "P.Strong",
+    "posteam": "CLE",
+    "attempts": 26,
+    "rushing_yards": 108,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "P.Taylor",
+    "posteam": "SF",
+    "attempts": 40,
+    "rushing_yards": 183,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Ali",
+    "posteam": "BAL",
+    "attempts": 10,
+    "rushing_yards": 31,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Blackshear",
+    "posteam": "CAR",
+    "attempts": 15,
+    "rushing_yards": 80,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Davis",
+    "posteam": "BUF",
+    "attempts": 120,
+    "rushing_yards": 478,
+    "rushing_tds": 4,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Dowdle",
+    "posteam": "DAL",
+    "attempts": 235,
+    "rushing_yards": 1079,
+    "rushing_tds": 2,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Johnson",
+    "posteam": "CHI",
+    "attempts": 55,
+    "rushing_yards": 150,
+    "rushing_tds": 6,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.McCloud",
+    "posteam": "ATL",
+    "attempts": 10,
+    "rushing_yards": 79,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Mostert",
+    "posteam": "MIA",
+    "attempts": 85,
+    "rushing_yards": 278,
+    "rushing_tds": 2,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Rivers",
+    "posteam": "LA",
+    "attempts": 25,
+    "rushing_yards": 107,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Stevenson",
+    "posteam": "NE",
+    "attempts": 207,
+    "rushing_yards": 801,
+    "rushing_tds": 7,
+    "fumbles": 6
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.White",
+    "posteam": "TB",
+    "attempts": 145,
+    "rushing_yards": 614,
+    "rushing_tds": 3,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "R.Wilson",
+    "posteam": "PIT",
+    "attempts": 13,
+    "rushing_yards": 19,
+    "rushing_tds": 1,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "S.Barkley",
+    "posteam": "PHI",
+    "attempts": 439,
+    "rushing_yards": 2504,
+    "rushing_tds": 18,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "S.Darnold",
+    "posteam": "MIN",
+    "attempts": 19,
+    "rushing_yards": 14,
+    "rushing_tds": 1,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "S.McCormick",
+    "posteam": "LV",
+    "attempts": 39,
+    "rushing_yards": 183,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "S.Perine",
+    "posteam": "KC",
+    "attempts": 21,
+    "rushing_yards": 100,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "S.Tucker",
+    "posteam": "TB",
+    "attempts": 50,
+    "rushing_yards": 308,
+    "rushing_tds": 2,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Allgeier",
+    "posteam": "ATL",
+    "attempts": 138,
+    "rushing_yards": 644,
+    "rushing_tds": 3,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Badie",
+    "posteam": "DEN",
+    "attempts": 13,
+    "rushing_yards": 94,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Benson",
+    "posteam": "ARI",
+    "attempts": 63,
+    "rushing_yards": 291,
+    "rushing_tds": 1,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Bigsby",
+    "posteam": "JAX",
+    "attempts": 168,
+    "rushing_yards": 766,
+    "rushing_tds": 7,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Chandler",
+    "posteam": "MIN",
+    "attempts": 56,
+    "rushing_yards": 182,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Etienne",
+    "posteam": "JAX",
+    "attempts": 150,
+    "rushing_yards": 558,
+    "rushing_tds": 2,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Goodson",
+    "posteam": "IND",
+    "attempts": 32,
+    "rushing_yards": 153,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Hill",
+    "posteam": "NO",
+    "attempts": 39,
+    "rushing_yards": 278,
+    "rushing_tds": 6,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Huntley",
+    "posteam": "MIA",
+    "attempts": 10,
+    "rushing_yards": 27,
+    "rushing_tds": 1,
+    "fumbles": 3
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Jennings",
+    "posteam": "NE",
+    "attempts": 13,
+    "rushing_yards": 33,
+    "rushing_tds": 0,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Lawrence",
+    "posteam": "JAX",
+    "attempts": 10,
+    "rushing_yards": 17,
+    "rushing_tds": 2,
+    "fumbles": 1
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Pollard",
+    "posteam": "TEN",
+    "attempts": 261,
+    "rushing_yards": 1079,
+    "rushing_tds": 5,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Sermon",
+    "posteam": "IND",
+    "attempts": 56,
+    "rushing_yards": 159,
+    "rushing_tds": 2,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Spears",
+    "posteam": "TEN",
+    "attempts": 84,
+    "rushing_yards": 312,
+    "rushing_tds": 4,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "T.Tracy",
+    "posteam": "NYG",
+    "attempts": 192,
+    "rushing_yards": 839,
+    "rushing_tds": 5,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "Ty.Johnson",
+    "posteam": "BUF",
+    "attempts": 61,
+    "rushing_yards": 307,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "W.Levis",
+    "posteam": "TEN",
+    "attempts": 23,
+    "rushing_yards": 46,
+    "rushing_tds": 0,
+    "fumbles": 6
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "W.Shipley",
+    "posteam": "PHI",
+    "attempts": 34,
+    "rushing_yards": 159,
+    "rushing_tds": 1,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "X.Worthy",
+    "posteam": "KC",
+    "attempts": 23,
+    "rushing_yards": 112,
+    "rushing_tds": 3,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "Z.Charbonnet",
+    "posteam": "SEA",
+    "attempts": 135,
+    "rushing_yards": 569,
+    "rushing_tds": 8,
+    "fumbles": 0
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "Z.Moss",
+    "posteam": "CIN",
+    "attempts": 74,
+    "rushing_yards": 242,
+    "rushing_tds": 2,
+    "fumbles": 2
+  },
+  {
+    "season": 2024,
+    "rusher_player_name": "Z.White",
+    "posteam": "LV",
+    "attempts": 65,
+    "rushing_yards": 183,
+    "rushing_tds": 1,
+    "fumbles": 2
+  }
+]
