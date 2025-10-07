@@ -13,8 +13,9 @@ suppressPackageStartupMessages({
 
 # Configuration
 # Allow environment variables to override defaults
-SEASONS_STR <- Sys.getenv("SEASONS", "1999:2024")
+SEASONS_STR <- Sys.getenv("SEASONS", "2020:2024")
 SEASON_TYPE <- Sys.getenv("SEASON_TYPE", "REG")
+FETCH_WEEKLY <- as.logical(Sys.getenv("FETCH_WEEKLY", "FALSE"))
 
 # Parse seasons string (e.g., "1999:2024" or "2020:2024")
 if (grepl(":", SEASONS_STR)) {
@@ -43,6 +44,7 @@ log_message <- function(message) {
 log_message("=== NFL PLAYER STATS FETCH: Starting ===")
 log_message(paste("Seasons:", min(SEASONS), "to", max(SEASONS)))
 log_message(paste("Season type:", SEASON_TYPE))
+log_message(paste("Fetch weekly data:", FETCH_WEEKLY))
 
 # ==============================================================================
 # STEP 1: FETCH SEASON-LEVEL STATS
@@ -76,44 +78,49 @@ tryCatch({
 })
 
 # ==============================================================================
-# STEP 2: FETCH WEEK-LEVEL STATS
+# STEP 2: FETCH WEEK-LEVEL STATS (OPTIONAL)
 # ==============================================================================
-log_message("Fetching week-level player statistics...")
-
-tryCatch({
-  weekly_stats <- calculate_stats(
-    seasons = SEASONS,
-    summary_level = "week",
-    stat_type = "player",
-    season_type = SEASON_TYPE
-  )
+if (FETCH_WEEKLY) {
+  log_message("Fetching week-level player statistics...")
   
-  log_message(paste("✓ Weekly stats fetched:", nrow(weekly_stats), "rows"))
-  log_message(paste("✓ Columns:", ncol(weekly_stats)))
-  
-  # Inspect data structure
-  log_message("Weekly stats structure:")
-  log_message(paste("  - Unique players:", length(unique(weekly_stats$player_id))))
-  log_message(paste("  - Seasons covered:", min(weekly_stats$season), "to", max(weekly_stats$season)))
-  log_message(paste("  - Weeks per season:", length(unique(weekly_stats$week))))
-  log_message(paste("  - Sample player_id:", head(unique(weekly_stats$player_id), 3)))
-  
-  # Check for missing data
-  na_counts <- colSums(is.na(weekly_stats))
-  log_message(paste("  - Columns with NAs:", sum(na_counts > 0)))
-  
-}, error = function(e) {
-  log_message(paste("ERROR fetching weekly stats:", e$message))
-  quit(status = 1)
-})
+  tryCatch({
+    weekly_stats <- calculate_stats(
+      seasons = SEASONS,
+      summary_level = "week",
+      stat_type = "player",
+      season_type = SEASON_TYPE
+    )
+    
+    log_message(paste("✓ Weekly stats fetched:", nrow(weekly_stats), "rows"))
+    log_message(paste("✓ Columns:", ncol(weekly_stats)))
+    
+    # Inspect data structure
+    log_message("Weekly stats structure:")
+    log_message(paste("  - Unique players:", length(unique(weekly_stats$player_id))))
+    log_message(paste("  - Seasons covered:", min(weekly_stats$season), "to", max(weekly_stats$season)))
+    log_message(paste("  - Weeks per season:", length(unique(weekly_stats$week))))
+    log_message(paste("  - Sample player_id:", head(unique(weekly_stats$player_id), 3)))
+    
+    # Check for missing data
+    na_counts <- colSums(is.na(weekly_stats))
+    log_message(paste("  - Columns with NAs:", sum(na_counts > 0)))
+    
+  }, error = function(e) {
+    log_message(paste("ERROR fetching weekly stats:", e$message))
+    quit(status = 1)
+  })
+} else {
+  log_message("Skipping weekly stats fetch (FETCH_WEEKLY=FALSE)")
+  weekly_stats <- data.frame()  # Empty dataframe for consistency
+}
 
 # ==============================================================================
 # STEP 3: DATA VALIDATION
 # ==============================================================================
 log_message("Validating data quality...")
 
-# Check if both datasets have same columns
-if (!identical(names(season_stats), names(weekly_stats))) {
+# Check if both datasets have same columns (only if weekly data was fetched)
+if (FETCH_WEEKLY && !identical(names(season_stats), names(weekly_stats))) {
   log_message("WARNING: Season and weekly stats have different columns!")
   log_message(paste("Season columns:", length(names(season_stats))))
   log_message(paste("Weekly columns:", length(names(weekly_stats))))
@@ -131,16 +138,18 @@ if (nrow(season_dupes) > 0) {
   log_message("✓ No duplicate player-season combinations found")
 }
 
-# Check for duplicate player-week combinations
-weekly_dupes <- weekly_stats %>%
-  group_by(player_id, season, week) %>%
-  summarise(count = n(), .groups = 'drop') %>%
-  filter(count > 1)
+# Check for duplicate player-week combinations (only if weekly data was fetched)
+if (FETCH_WEEKLY) {
+  weekly_dupes <- weekly_stats %>%
+    group_by(player_id, season, week) %>%
+    summarise(count = n(), .groups = 'drop') %>%
+    filter(count > 1)
 
-if (nrow(weekly_dupes) > 0) {
-  log_message(paste("WARNING: Found", nrow(weekly_dupes), "duplicate player-week combinations"))
-} else {
-  log_message("✓ No duplicate player-week combinations found")
+  if (nrow(weekly_dupes) > 0) {
+    log_message(paste("WARNING: Found", nrow(weekly_dupes), "duplicate player-week combinations"))
+  } else {
+    log_message("✓ No duplicate player-week combinations found")
+  }
 }
 
 # ==============================================================================
@@ -156,7 +165,9 @@ stat_cols <- names(season_stats)[numeric_cols & !names(season_stats) %in% c("sea
 log_message(paste("Converting NAs to 0 for", length(stat_cols), "stat columns"))
 
 season_stats[stat_cols][is.na(season_stats[stat_cols])] <- 0
-weekly_stats[stat_cols][is.na(weekly_stats[stat_cols])] <- 0
+if (FETCH_WEEKLY) {
+  weekly_stats[stat_cols][is.na(weekly_stats[stat_cols])] <- 0
+}
 
 log_message("✓ Data cleaning completed")
 
@@ -179,18 +190,22 @@ if (file.exists(season_file)) {
   quit(status = 1)
 }
 
-# Export weekly stats
-weekly_file <- file.path(OUTPUT_DIR, "weekly_stats.csv")
-write.csv(weekly_stats, weekly_file, row.names = FALSE)
-log_message(paste("✓ Weekly stats exported to:", weekly_file))
+# Export weekly stats (only if fetched)
+if (FETCH_WEEKLY) {
+  weekly_file <- file.path(OUTPUT_DIR, "weekly_stats.csv")
+  write.csv(weekly_stats, weekly_file, row.names = FALSE)
+  log_message(paste("✓ Weekly stats exported to:", weekly_file))
 
-# Check file size
-if (file.exists(weekly_file)) {
-  file_size_mb <- round(file.size(weekly_file) / 1024 / 1024, 2)
-  log_message(paste("  - File size:", file_size_mb, "MB"))
+  # Check file size
+  if (file.exists(weekly_file)) {
+    file_size_mb <- round(file.size(weekly_file) / 1024 / 1024, 2)
+    log_message(paste("  - File size:", file_size_mb, "MB"))
+  } else {
+    log_message("❌ ERROR: Weekly stats file not created!")
+    quit(status = 1)
+  }
 } else {
-  log_message("❌ ERROR: Weekly stats file not created!")
-  quit(status = 1)
+  log_message("Skipping weekly stats export (FETCH_WEEKLY=FALSE)")
 }
 
 # ==============================================================================
@@ -206,12 +221,16 @@ log_message(paste("  - Unique players:", length(unique(season_stats$player_id)))
 log_message(paste("  - Seasons:", min(season_stats$season), "to", max(season_stats$season)))
 log_message(paste("  - Columns:", ncol(season_stats)))
 
-log_message(paste("Weekly stats:"))
-log_message(paste("  - Total records:", nrow(weekly_stats)))
-log_message(paste("  - Unique players:", length(unique(weekly_stats$player_id))))
-log_message(paste("  - Seasons:", min(weekly_stats$season), "to", max(weekly_stats$season)))
-log_message(paste("  - Weeks per season:", length(unique(weekly_stats$week))))
-log_message(paste("  - Columns:", ncol(weekly_stats)))
+if (FETCH_WEEKLY) {
+  log_message(paste("Weekly stats:"))
+  log_message(paste("  - Total records:", nrow(weekly_stats)))
+  log_message(paste("  - Unique players:", length(unique(weekly_stats$player_id))))
+  log_message(paste("  - Seasons:", min(weekly_stats$season), "to", max(weekly_stats$season)))
+  log_message(paste("  - Weeks per season:", length(unique(weekly_stats$week))))
+  log_message(paste("  - Columns:", ncol(weekly_stats)))
+} else {
+  log_message("Weekly stats: Not fetched (FETCH_WEEKLY=FALSE)")
+}
 
 # Sample data inspection
 log_message("Sample season record:")
@@ -220,15 +239,19 @@ log_message(paste("  - Player:", sample_season$player_name, "(", sample_season$p
 log_message(paste("  - Season:", sample_season$season, "Team:", sample_season$recent_team))
 log_message(paste("  - Position:", sample_season$position, "Games:", sample_season$games))
 
-log_message("Sample weekly record:")
-sample_weekly <- weekly_stats[1, ]
-log_message(paste("  - Player:", sample_weekly$player_name, "(", sample_weekly$player_id, ")"))
-log_message(paste("  - Season:", sample_weekly$season, "Week:", sample_weekly$week, "Team:", sample_weekly$recent_team))
-log_message(paste("  - Position:", sample_weekly$position, "Games:", sample_weekly$games))
+if (FETCH_WEEKLY) {
+  log_message("Sample weekly record:")
+  sample_weekly <- weekly_stats[1, ]
+  log_message(paste("  - Player:", sample_weekly$player_name, "(", sample_weekly$player_id, ")"))
+  log_message(paste("  - Season:", sample_weekly$season, "Week:", sample_weekly$week, "Team:", sample_weekly$recent_team))
+  log_message(paste("  - Position:", sample_weekly$position, "Games:", sample_weekly$games))
+}
 
 log_message("=== NFL PLAYER STATS FETCH: Complete ===")
 log_message("Files created:")
 log_message("  - season_stats.csv")
-log_message("  - weekly_stats.csv")
+if (FETCH_WEEKLY) {
+  log_message("  - weekly_stats.csv")
+}
 log_message("")
 log_message("Ready for Node.js upload script!")

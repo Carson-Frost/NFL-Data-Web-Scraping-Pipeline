@@ -311,16 +311,16 @@ async function uploadAllData() {
         if (!fs.existsSync(SEASON_STATS_FILE)) {
             throw new Error(`Season stats file not found: ${SEASON_STATS_FILE}`);
         }
-        if (!fs.existsSync(WEEKLY_STATS_FILE)) {
-            throw new Error(`Weekly stats file not found: ${WEEKLY_STATS_FILE}`);
+        
+        const weeklyStatsExists = fs.existsSync(WEEKLY_STATS_FILE);
+        if (!weeklyStatsExists) {
+            log('Weekly stats file not found - skipping weekly stats upload');
         }
         
         // Parse CSV files
         log('Parsing CSV files...');
-        const [seasonData, weeklyData] = await Promise.all([
-            parseCSV(SEASON_STATS_FILE),
-            parseCSV(WEEKLY_STATS_FILE)
-        ]);
+        const seasonData = await parseCSV(SEASON_STATS_FILE);
+        const weeklyData = weeklyStatsExists ? await parseCSV(WEEKLY_STATS_FILE) : [];
         
         log(`Parsed ${seasonData.length} season records and ${weeklyData.length} weekly records`);
         
@@ -332,19 +332,24 @@ async function uploadAllData() {
             log('Season stats already complete, skipping...');
         }
         
-        // Upload weekly stats (if not already complete)
+        // Upload weekly stats (if not already complete and file exists)
         let weeklyResults = { successCount: 0, errorCount: 0 };
-        if (!checkpoint?.weeklyStats?.completed) {
+        if (weeklyStatsExists && !checkpoint?.weeklyStats?.completed) {
             weeklyResults = await uploadWeeklyStats(weeklyData, checkpoint);
-        } else {
+        } else if (weeklyStatsExists) {
             log('Weekly stats already complete, skipping...');
+        } else {
+            log('No weekly stats file found, skipping weekly stats upload...');
         }
         
         // Verify upload
         const verification = await verifyUpload();
         
         // Clean up checkpoint file if everything is complete
-        if (checkpoint?.seasonStats?.completed && checkpoint?.weeklyStats?.completed) {
+        const seasonComplete = checkpoint?.seasonStats?.completed;
+        const weeklyComplete = !weeklyStatsExists || checkpoint?.weeklyStats?.completed;
+        
+        if (seasonComplete && weeklyComplete) {
             fs.unlinkSync(CHECKPOINT_FILE);
             log('Checkpoint file deleted (upload complete)');
         }

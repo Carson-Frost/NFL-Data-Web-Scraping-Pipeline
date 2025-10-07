@@ -7,7 +7,7 @@ on:
       seasons:
         description: 'Year range (e.g., "2020:2024")'
         required: false
-        default: '1999:2024'
+        default: '2020:2024'
         type: string
       season_type:
         description: 'Season type'
@@ -18,6 +18,11 @@ on:
           - 'REG'
           - 'POST'
           - 'REG+POST'
+      fetch_weekly:
+        description: 'Fetch weekly stats (WARNING: Creates large files)'
+        required: false
+        default: false
+        type: boolean
   
   # Run on schedule (optional - uncomment if you want automatic runs)
   # schedule:
@@ -89,12 +94,15 @@ jobs:
     
     - name: Fetch NFL player statistics
       run: |
-        # Set seasons parameter if provided
+        # Set parameters if provided
         if [ -n "${{ github.event.inputs.seasons }}" ]; then
           echo "SEASONS=${{ github.event.inputs.seasons }}" >> $GITHUB_ENV
         fi
         if [ -n "${{ github.event.inputs.season_type }}" ]; then
           echo "SEASON_TYPE=${{ github.event.inputs.season_type }}" >> $GITHUB_ENV
+        fi
+        if [ -n "${{ github.event.inputs.fetch_weekly }}" ]; then
+          echo "FETCH_WEEKLY=${{ github.event.inputs.fetch_weekly }}" >> $GITHUB_ENV
         fi
         
         # Verify packages are available before running script
@@ -112,8 +120,9 @@ jobs:
         
         Rscript nfl_player_stats_fetch.R
       env:
-        SEASONS: ${{ github.event.inputs.seasons || '1999:2024' }}
+        SEASONS: ${{ github.event.inputs.seasons || '2020:2024' }}
         SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}
+        FETCH_WEEKLY: ${{ github.event.inputs.fetch_weekly || 'FALSE' }}
     
     - name: Upload to Firebase
       run: node upload_player_stats_to_firebase.js
