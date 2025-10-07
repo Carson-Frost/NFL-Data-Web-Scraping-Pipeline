@@ -9,6 +9,15 @@ on:
         required: false
         default: '2024'
         type: string
+      season_type:
+        description: 'Season type'
+        required: false
+        default: 'REG'
+        type: choice
+        options:
+          - 'REG'
+          - 'POST'
+          - 'REG+POST'
 
 jobs:
   weekly-update:
@@ -43,13 +52,14 @@ jobs:
       run: |
         # Use current season or input
         CURRENT_SEASON=${{ github.event.inputs.season || '2024' }}
+        SEASON_TYPE_INPUT=${{ github.event.inputs.season_type || 'REG' }}
         echo "SEASONS=$CURRENT_SEASON" >> $GITHUB_ENV
-        echo "SEASON_TYPE=REG" >> $GITHUB_ENV
+        echo "SEASON_TYPE=$SEASON_TYPE_INPUT" >> $GITHUB_ENV
         
         Rscript nfl_player_stats_fetch.R
       env:
         SEASONS: ${{ github.event.inputs.season || '2024' }}
-        SEASON_TYPE: 'REG'
+        SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}
     
     - name: Upload to Firebase
       run: node upload_player_stats_to_firebase.js

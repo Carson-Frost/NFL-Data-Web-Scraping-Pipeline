@@ -16,6 +16,7 @@ on:
         type: choice
         options:
           - 'REG'
+          - 'POST'
           - 'REG+POST'
   
   # Run on schedule (optional - uncomment if you want automatic runs)

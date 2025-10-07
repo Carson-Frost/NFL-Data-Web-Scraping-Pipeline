@@ -78,7 +78,7 @@ The repository includes two workflow files:
 4. Click **Run workflow**
 5. Optionally customize:
    - **Seasons**: Year range (e.g., "2020:2024")
-   - **Season Type**: "REG" or "REG+POST"
+   - **Season Type**: "REG" (regular season), "POST" (playoffs only), or "REG+POST" (both)
 6. Click **Run workflow**
 
 ### Automatic Weekly Updates:
@@ -87,7 +87,9 @@ The weekly update runs automatically every Monday at 2 AM UTC. You can also trig
 
 1. Go to **Actions** → **NFL Weekly Update**
 2. Click **Run workflow**
-3. Optionally specify a different season year
+3. Optionally customize:
+   - **Season**: Different season year (e.g., "2024")
+   - **Season Type**: "REG" (regular season), "POST" (playoffs only), or "REG+POST" (both)
 4. Click **Run workflow**
 
 ## Step 5: Monitoring Runs
