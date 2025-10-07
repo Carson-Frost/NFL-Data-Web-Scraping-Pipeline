@@ -1,0 +1,69 @@
+name: NFL Weekly Update
+
+on:
+  # Manual triggers only (schedule will be added later)
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season year (e.g., 2024)'
+        required: false
+        default: '2024'
+        type: string
+
+jobs:
+  weekly-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.3'
+    
+    - name: Install R dependencies
+      run: |
+        Rscript -e "install.packages(c('nflfastR', 'dplyr'), repos='https://cran.rstudio.com/')"
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Node.js dependencies
+      run: npm install
+    
+    - name: Create output directory
+      run: mkdir -p nfl_data_output
+    
+    - name: Fetch current season stats
+      run: |
+        # Use current season or input
+        CURRENT_SEASON=${{ github.event.inputs.season || '2024' }}
+        echo "SEASONS=$CURRENT_SEASON" >> $GITHUB_ENV
+        echo "SEASON_TYPE=REG" >> $GITHUB_ENV
+        
+        Rscript nfl_player_stats_fetch.R
+      env:
+        SEASONS: ${{ github.event.inputs.season || '2024' }}
+        SEASON_TYPE: 'REG'
+    
+    - name: Upload to Firebase
+      run: node upload_player_stats_to_firebase.js
+      env:
+        FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+        FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+    
+    - name: Upload logs as artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: weekly-update-logs
+        path: |
+          nfl_player_stats_log.txt
+          upload_errors.json
+        retention-days: 30

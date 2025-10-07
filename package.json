@@ -1,0 +1,26 @@
+{
+  "name": "nfl-player-stats-pipeline",
+  "version": "1.0.0",
+  "description": "NFL player statistics data pipeline using R and Node.js",
+  "main": "upload_player_stats_to_firebase.js",
+  "scripts": {
+    "upload": "node upload_player_stats_to_firebase.js",
+    "fetch-stats": "Rscript nfl_player_stats_fetch.R"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "csv-parser": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "nfl",
+    "statistics",
+    "firebase",
+    "firestore",
+    "data-pipeline"
+  ],
+  "author": "",
+  "license": "MIT"
+}
