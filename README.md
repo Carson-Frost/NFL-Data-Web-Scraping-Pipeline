@@ -21,12 +21,12 @@ This pipeline consists of two main components:
 ## Database Schema
 
 ### Collection 1: `/season_stats/{year_playerId}`
-Document ID format: `"2023_00-0036389"`
+Document ID format: `"2025_00-0036389"`
 
 Contains player statistics aggregated by season with all 113 stat columns.
 
 ### Collection 2: `/weekly_stats/{year_week_playerId}`
-Document ID format: `"2023_05_00-0036389"`
+Document ID format: `"2025_05_00-0036389"`
 
 Contains player statistics for individual weeks with all 113 stat columns.
 
