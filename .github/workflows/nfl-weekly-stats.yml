@@ -1,11 +1,11 @@
-name: NFL Player Stats Pipeline (Legacy)
+name: NFL Weekly Stats (Large Dataset)
 
 on:
   # Run manually via GitHub Actions UI
   workflow_dispatch:
     inputs:
       seasons:
-        description: 'Year range (e.g., "2020:2024")'
+        description: 'Year range (e.g., "2020:2024") - WARNING: Large datasets!'
         required: false
         default: '2020:2024'
         type: string
@@ -18,23 +18,28 @@ on:
           - 'REG'
           - 'POST'
           - 'REG+POST'
-      fetch_weekly:
-        description: 'Fetch weekly stats (WARNING: Creates large files)'
-        required: false
+      confirm_large_dataset:
+        description: 'Confirm you understand this creates large files (5GB+)'
+        required: true
         default: false
         type: boolean
-  
-  # Run on schedule (optional - uncomment if you want automatic runs)
-  # schedule:
-  #   - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
 
 jobs:
-  fetch-and-upload:
+  fetch-weekly-stats:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+    
+    - name: Validate large dataset confirmation
+      run: |
+        if [ "${{ github.event.inputs.confirm_large_dataset }}" != "true" ]; then
+          echo "❌ You must confirm that you understand this creates large files"
+          echo "⚠️  Weekly stats can be 5GB+ and may timeout on GitHub Actions"
+          exit 1
+        fi
+        echo "✅ Large dataset confirmation received"
     
     - name: Set up R
       uses: r-lib/actions/setup-r@v2
@@ -92,7 +97,7 @@ jobs:
     - name: Create output directory
       run: mkdir -p nfl_data_output
     
-    - name: Fetch NFL player statistics
+    - name: Fetch NFL weekly statistics
       run: |
         # Set parameters if provided
         if [ -n "${{ github.event.inputs.seasons }}" ]; then
@@ -100,9 +105,6 @@ jobs:
         fi
         if [ -n "${{ github.event.inputs.season_type }}" ]; then
           echo "SEASON_TYPE=${{ github.event.inputs.season_type }}" >> $GITHUB_ENV
-        fi
-        if [ -n "${{ github.event.inputs.fetch_weekly }}" ]; then
-          echo "FETCH_WEEKLY=${{ github.event.inputs.fetch_weekly }}" >> $GITHUB_ENV
         fi
         
         # Verify packages are available before running script
@@ -118,11 +120,15 @@ jobs:
         cat('✓ All packages verified\n')
         "
         
+        echo "⚠️  Starting weekly stats fetch - this may take 30-60 minutes"
+        echo "📊 Fetching seasons: ${{ github.event.inputs.seasons || '2020:2024' }}"
+        echo "📈 This will create large CSV files (5GB+)"
+        
         Rscript nfl_player_stats_fetch.R
       env:
         SEASONS: ${{ github.event.inputs.seasons || '2020:2024' }}
         SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}
-        FETCH_WEEKLY: ${{ github.event.inputs.fetch_weekly || 'FALSE' }}
+        FETCH_WEEKLY: 'TRUE'  # Always TRUE for this workflow
     
     - name: Upload to Firebase
       run: node upload_player_stats_to_firebase.js
@@ -135,17 +141,17 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: pipeline-logs
+        name: weekly-stats-logs
         path: |
           nfl_player_stats_log.txt
           upload_errors.json
           upload_checkpoint.json
         retention-days: 30
     
-    - name: Upload CSV files as artifacts (if small enough)
+    - name: Upload CSV files as artifacts (compressed)
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: nfl-data-csvs
+        name: nfl-weekly-stats-csvs
         path: nfl_data_output/
-        retention-days: 7
+        retention-days: 3  # Shorter retention due to size

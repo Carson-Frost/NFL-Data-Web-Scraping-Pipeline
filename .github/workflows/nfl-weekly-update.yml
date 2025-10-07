@@ -1,4 +1,4 @@
-name: NFL Weekly Update
+name: NFL Weekly Update (Legacy)
 
 on:
   # Manual triggers only (schedule will be added later)

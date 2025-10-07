@@ -1,4 +1,4 @@
-name: NFL Player Stats Pipeline (Legacy)
+name: NFL Season Stats Only
 
 on:
   # Run manually via GitHub Actions UI
@@ -18,18 +18,13 @@ on:
           - 'REG'
           - 'POST'
           - 'REG+POST'
-      fetch_weekly:
-        description: 'Fetch weekly stats (WARNING: Creates large files)'
-        required: false
-        default: false
-        type: boolean
   
   # Run on schedule (optional - uncomment if you want automatic runs)
   # schedule:
   #   - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
 
 jobs:
-  fetch-and-upload:
+  fetch-season-stats:
     runs-on: ubuntu-latest
     
     steps:
@@ -92,7 +87,7 @@ jobs:
     - name: Create output directory
       run: mkdir -p nfl_data_output
     
-    - name: Fetch NFL player statistics
+    - name: Fetch NFL season statistics
       run: |
         # Set parameters if provided
         if [ -n "${{ github.event.inputs.seasons }}" ]; then
@@ -100,9 +95,6 @@ jobs:
         fi
         if [ -n "${{ github.event.inputs.season_type }}" ]; then
           echo "SEASON_TYPE=${{ github.event.inputs.season_type }}" >> $GITHUB_ENV
-        fi
-        if [ -n "${{ github.event.inputs.fetch_weekly }}" ]; then
-          echo "FETCH_WEEKLY=${{ github.event.inputs.fetch_weekly }}" >> $GITHUB_ENV
         fi
         
         # Verify packages are available before running script
@@ -122,7 +114,7 @@ jobs:
       env:
         SEASONS: ${{ github.event.inputs.seasons || '2020:2024' }}
         SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}
-        FETCH_WEEKLY: ${{ github.event.inputs.fetch_weekly || 'FALSE' }}
+        FETCH_WEEKLY: 'FALSE'  # Always FALSE for this workflow
     
     - name: Upload to Firebase
       run: node upload_player_stats_to_firebase.js
@@ -135,7 +127,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: pipeline-logs
+        name: season-stats-logs
         path: |
           nfl_player_stats_log.txt
           upload_errors.json
@@ -146,6 +138,6 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: nfl-data-csvs
-        path: nfl_data_output/
+        name: nfl-season-stats-csv
+        path: nfl_data_output/season_stats.csv
         retention-days: 7
