@@ -1,4 +1,4 @@
-name: NFL Weekly Update (Legacy)
+name: NFL Weekly Update
 
 on:
   # Manual triggers only (schedule will be added later)
@@ -18,11 +18,6 @@ on:
           - 'REG'
           - 'POST'
           - 'REG+POST'
-      fetch_weekly:
-        description: 'Fetch weekly stats (WARNING: Creates large files)'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   weekly-update:
@@ -88,15 +83,14 @@ jobs:
     - name: Create output directory
       run: mkdir -p nfl_data_output
     
-    - name: Fetch current season stats
+    - name: Fetch current season stats (season + weekly)
       run: |
         # Use current season or input
         CURRENT_SEASON=${{ github.event.inputs.season || '2024' }}
         SEASON_TYPE_INPUT=${{ github.event.inputs.season_type || 'REG' }}
-        FETCH_WEEKLY_INPUT=${{ github.event.inputs.fetch_weekly || 'FALSE' }}
         echo "SEASONS=$CURRENT_SEASON" >> $GITHUB_ENV
         echo "SEASON_TYPE=$SEASON_TYPE_INPUT" >> $GITHUB_ENV
-        echo "FETCH_WEEKLY=$FETCH_WEEKLY_INPUT" >> $GITHUB_ENV
+        echo "FETCH_WEEKLY=TRUE" >> $GITHUB_ENV
         
         # Verify packages are available before running script
         Rscript -e "
@@ -111,11 +105,14 @@ jobs:
         cat('✓ All packages verified\n')
         "
         
+        echo "📊 Fetching season $CURRENT_SEASON stats (season + weekly data)"
+        echo "⚠️  This includes weekly data for comprehensive analysis"
+        
         Rscript nfl_player_stats_fetch.R
       env:
         SEASONS: ${{ github.event.inputs.season || '2024' }}
         SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}
-        FETCH_WEEKLY: ${{ github.event.inputs.fetch_weekly || 'FALSE' }}
+        FETCH_WEEKLY: 'TRUE'
     
     - name: Upload to Firebase
       run: node upload_player_stats_to_firebase.js
@@ -132,4 +129,13 @@ jobs:
         path: |
           nfl_player_stats_log.txt
           upload_errors.json
+          upload_checkpoint.json
         retention-days: 30
+    
+    - name: Upload CSV files as artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: nfl-weekly-update-csvs
+        path: nfl_data_output/
+        retention-days: 7
