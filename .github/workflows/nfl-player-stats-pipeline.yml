@@ -38,7 +38,42 @@ jobs:
     
     - name: Install R dependencies
       run: |
-        Rscript -e "install.packages(c('nflfastR', 'dplyr'), repos='https://cran.rstudio.com/')"
+        # Install system dependencies first
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+        
+        # Install R packages with error handling
+        Rscript -e "
+        options(repos = c(CRAN = 'https://cran.rstudio.com/'))
+        
+        # Install dplyr first (dependency)
+        if (!require(dplyr, quietly = TRUE)) {
+          cat('Installing dplyr...\n')
+          install.packages('dplyr', repos = 'https://cran.rstudio.com/')
+        }
+        
+        # Install nflfastR
+        if (!require(nflfastR, quietly = TRUE)) {
+          cat('Installing nflfastR...\n')
+          install.packages('nflfastR', repos = 'https://cran.rstudio.com/')
+        }
+        
+        # Verify installation
+        cat('Verifying package installation...\n')
+        if (require(nflfastR, quietly = TRUE)) {
+          cat('✓ nflfastR installed successfully\n')
+        } else {
+          cat('❌ nflfastR installation failed\n')
+          quit(status = 1)
+        }
+        
+        if (require(dplyr, quietly = TRUE)) {
+          cat('✓ dplyr installed successfully\n')
+        } else {
+          cat('❌ dplyr installation failed\n')
+          quit(status = 1)
+        }
+        "
     
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -61,6 +96,19 @@ jobs:
         if [ -n "${{ github.event.inputs.season_type }}" ]; then
           echo "SEASON_TYPE=${{ github.event.inputs.season_type }}" >> $GITHUB_ENV
         fi
+        
+        # Verify packages are available before running script
+        Rscript -e "
+        if (!require(nflfastR, quietly = TRUE)) {
+          cat('❌ nflfastR not available\n')
+          quit(status = 1)
+        }
+        if (!require(dplyr, quietly = TRUE)) {
+          cat('❌ dplyr not available\n')
+          quit(status = 1)
+        }
+        cat('✓ All packages verified\n')
+        "
         
         Rscript nfl_player_stats_fetch.R
       env:
