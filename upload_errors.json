@@ -1,0 +1,47 @@
+[
+  {
+    "timestamp": "2025-10-08T03:53:11.083Z",
+    "error": "4 DEADLINE_EXCEEDED: Deadline exceeded after 0.335s,metadata filters: 0.133s,LB pick: 0.001s,remote_addr=[2607:f8b0:400a:800::200a]:443",
+    "context": "Season stats batch 1 (records 0-500)"
+  },
+  {
+    "timestamp": "2025-10-08T04:03:11.184Z",
+    "error": "4 DEADLINE_EXCEEDED: Deadline exceeded after 0.338s,metadata filters: 0.135s,LB pick: 0.002s,remote_addr=[2607:f8b0:400a:800::200a]:443",
+    "context": "Season stats batch 2 (records 500-1000)"
+  },
+  {
+    "timestamp": "2025-10-08T04:13:41.163Z",
+    "error": "Total timeout of API google.firestore.v1.Firestore exceeded 600000 milliseconds retrying error Error: 8 RESOURCE_EXHAUSTED: Quota exceeded.  before any response was received.",
+    "context": "Season stats batch 3 (records 1000-1500)"
+  },
+  {
+    "timestamp": "2025-10-08T04:24:03.762Z",
+    "error": "Total timeout of API google.firestore.v1.Firestore exceeded 600000 milliseconds retrying error Error: 8 RESOURCE_EXHAUSTED: Quota exceeded.  before any response was received.",
+    "context": "Season stats batch 4 (records 1500-2000)"
+  },
+  {
+    "timestamp": "2025-10-08T04:34:25.338Z",
+    "error": "Total timeout of API google.firestore.v1.Firestore exceeded 600000 milliseconds retrying error Error: 8 RESOURCE_EXHAUSTED: Quota exceeded.  before any response was received.",
+    "context": "Season stats batch 5 (records 2000-2500)"
+  },
+  {
+    "timestamp": "2025-10-08T04:44:31.017Z",
+    "error": "Total timeout of API google.firestore.v1.Firestore exceeded 600000 milliseconds retrying error Error: 8 RESOURCE_EXHAUSTED: Quota exceeded.  before any response was received.",
+    "context": "Season stats batch 6 (records 2500-3000)"
+  },
+  {
+    "timestamp": "2025-10-08T04:54:31.097Z",
+    "error": "4 DEADLINE_EXCEEDED: Deadline exceeded after 0.892s,metadata filters: 0.159s,LB pick: 0.001s,remote_addr=[2607:f8b0:400a:80b::200a]:443",
+    "context": "Season stats batch 7 (records 3000-3500)"
+  },
+  {
+    "timestamp": "2025-10-08T05:04:31.192Z",
+    "error": "4 DEADLINE_EXCEEDED: Deadline exceeded after 1.470s,metadata filters: 0.133s,LB pick: 0.001s,remote_addr=[2607:f8b0:400a:80b::200a]:443",
+    "context": "Season stats batch 8 (records 3500-4000)"
+  },
+  {
+    "timestamp": "2025-10-08T05:14:52.586Z",
+    "error": "Total timeout of API google.firestore.v1.Firestore exceeded 600000 milliseconds retrying error Error: 8 RESOURCE_EXHAUSTED: Quota exceeded.  before any response was received.",
+    "context": "Season stats batch 9 (records 4000-4500)"
+  }
+]

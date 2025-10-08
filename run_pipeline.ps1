@@ -40,10 +40,31 @@ try {
     exit 1
 }
 
+# Load environment variables from .env file
+if (Test-Path ".env") {
+    Write-Host "Loading environment variables from .env file..." -ForegroundColor Cyan
+    Get-Content ".env" | ForEach-Object {
+        if ($_ -match "^([^#][^=]+)=(.*)$") {
+            $name = $matches[1].Trim()
+            $value = $matches[2].Trim()
+            # Remove surrounding quotes if present
+            if ($value.StartsWith('"') -and $value.EndsWith('"')) {
+                $value = $value.Substring(1, $value.Length - 2)
+            }
+            [Environment]::SetEnvironmentVariable($name, $value, "Process")
+            Write-Host "  Loaded: $name" -ForegroundColor Gray
+        }
+    }
+    Write-Host "Environment variables loaded" -ForegroundColor Green
+} else {
+    Write-Host "Warning: .env file not found" -ForegroundColor Yellow
+}
+
 # Check Firebase environment variables
 if (-not $env:FIREBASE_PROJECT_ID -or -not $env:FIREBASE_PRIVATE_KEY -or -not $env:FIREBASE_CLIENT_EMAIL) {
     Write-Host "Error: Firebase environment variables not set" -ForegroundColor Red
     Write-Host "Please set: FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL" -ForegroundColor Yellow
+    Write-Host "Make sure your .env file exists and contains these variables" -ForegroundColor Yellow
     exit 1
 }
 

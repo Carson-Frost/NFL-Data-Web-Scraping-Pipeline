@@ -6,6 +6,9 @@
 # ==============================================================================
 
 # Load required libraries
+# Add local package directory to library path
+.libPaths(c("./r_packages", .libPaths()))
+
 suppressPackageStartupMessages({
   library(nflfastR)
   library(dplyr)

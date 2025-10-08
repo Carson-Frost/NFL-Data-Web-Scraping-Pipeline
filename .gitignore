@@ -6,3 +6,4 @@ node_modules/
 .DS_Store
 .env
 nfl_data_output/
+r_packages/
