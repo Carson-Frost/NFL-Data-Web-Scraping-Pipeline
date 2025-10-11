@@ -1,4 +1,4 @@
-# NFL Data Pipeline - Manual Execution
+# NFL Data Pipeline - Web Scraping with nflfastr (https://www.nflfastr.com/)
 
 A modular NFL data pipeline that fetches player statistics and roster data using nflfastR and uploads them to Firebase Firestore. Each data type can be fetched independently.
 
@@ -6,17 +6,17 @@ A modular NFL data pipeline that fetches player statistics and roster data using
 
 This pipeline consists of separate R scripts for each data type and a Node.js upload script:
 
-1. **`fetch_season_data.R`** - Fetches comprehensive player season statistics
-2. **`fetch_weekly_data.R`** - Fetches comprehensive player weekly statistics  
+1. **`fetch_season_data.R`** - Fetches player season statistics
+2. **`fetch_weekly_data.R`** - Fetches player weekly statistics  
 3. **`fetch_roster_data.R`** - Fetches player roster information
-4. **`upload_nfl_data_to_firebase.js`** - Uploads data to Firebase Firestore
+4. **`upload_nfl_data_to_firebase.js`** - Uploads data to Firebase Firestore (what I'm using for this particular project)
 
 ## Features
 
 - **Modular Design**: Run only the data types you need
 - **Automatic Cleanup**: Old files are automatically removed when running new fetches
 - **Descriptive File Names**: Files are named based on seasons and data type
-- **Comprehensive Data**: All player statistics from 1999 to present
+- **Comprehensive Data**: All player statistics from 1999 to present are possible with nflfastr
 - **Batch Processing**: Efficient Firebase uploads with error handling
 - **Checkpoint Recovery**: Resume uploads if the process crashes
 
@@ -24,24 +24,24 @@ This pipeline consists of separate R scripts for each data type and a Node.js up
 
 ### Prerequisites
 
-- R with `nflfastR` package installed
-- Node.js 16+ with npm
-- Firebase project with Firestore enabled
-- Firebase service account credentials
+- **R Environment**: R with `nflfastR` package installed (install via R or RStudio)
+- **Node.js Environment**: Node.js 16+ with npm (install via PowerShell/terminal)
+- **Firebase Setup**: Firebase project with Firestore enabled
+- **Firebase Credentials**: Firebase service account credentials
 
 ### Installation
 
-1. Install R dependencies:
+1. **Install R dependencies** (run these commands in R or RStudio):
 ```r
 install.packages(c("nflfastR", "dplyr"))
 ```
 
-2. Install Node.js dependencies:
+2. **Install Node.js dependencies** (run in PowerShell/terminal):
 ```bash
 npm install
 ```
 
-3. Set up Firebase environment variables in `.env` file:
+3. **Set up Firebase environment variables** in `.env` file:
 ```bash
 FIREBASE_PROJECT_ID="your-project-id"
 FIREBASE_PRIVATE_KEY="your-private-key"
@@ -49,6 +49,20 @@ FIREBASE_CLIENT_EMAIL="your-client-email"
 ```
 
 ## Usage
+
+### Important: Two Different Environments
+
+This pipeline uses **two different programming environments**:
+
+1. **R Environment** (for data fetching):
+   - Open **R** or **RStudio**
+   - Run the R scripts to fetch NFL data
+   - Commands start with `Rscript` and run in PowerShell/terminal
+
+2. **Node.js Environment** (for Firebase upload):
+   - Run in **PowerShell** or **terminal**
+   - Uploads the CSV files to Firebase
+   - Commands start with `node` and run in PowerShell/terminal
 
 ### Step 1: Fetch Data (Choose One or More)
 
@@ -212,14 +226,14 @@ node upload_nfl_data_to_firebase.js
 
 ### Environment Variables
 
-You can override script parameters using environment variables:
+You can override script parameters using environment variables in **PowerShell**:
 
-```bash
+```powershell
 # Set seasons
-export SEASONS="2020:2024"
+$env:SEASONS="2020:2024"
 
-# Set season type
-export SEASON_TYPE="REG+POST"
+# Set season type  
+$env:SEASON_TYPE="REG+POST"
 
 # Run script
 Rscript fetch_season_data.R
@@ -260,10 +274,16 @@ The upload script provides detailed progress information:
 
 ### Common Issues
 
-1. **Firebase Authentication**: Ensure `.env` file exists with correct credentials
-2. **Memory Issues**: R scripts load large datasets into memory
-3. **Rate Limiting**: Adjust `BATCH_DELAY_SECONDS` if you hit Firebase rate limits
-4. **Disk Space**: Ensure sufficient space for CSV files
+1. **"The term 'c' is not recognized" Error**: 
+   - **Problem**: You're trying to run R commands in PowerShell
+   - **Solution**: R package installation commands must be run in R or RStudio, not PowerShell
+   - **Correct**: Open R/RStudio → `install.packages(c("nflfastR", "dplyr"))`
+   - **Wrong**: PowerShell → `install.packages(c("nflfastR", "dplyr"))`
+
+2. **Firebase Authentication**: Ensure `.env` file exists with correct credentials
+3. **Memory Issues**: R scripts load large datasets into memory
+4. **Rate Limiting**: Adjust `BATCH_DELAY_SECONDS` if you hit Firebase rate limits
+5. **Disk Space**: Ensure sufficient space for CSV files
 
 ### Resume Failed Uploads
 
