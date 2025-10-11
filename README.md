@@ -1,6 +1,7 @@
-# NFL Data Pipeline - Web Scraping with nflfastr (https://www.nflfastr.com/)
+# NFL Data Pipeline - Web Scraping with nflfastr
+(https://www.nflfastr.com/)
 
-A modular NFL data pipeline that fetches player statistics and roster data using nflfastR. Optionally uploads data to Firebase Firestore. Each data type can be fetched independently.
+A modular NFL data pipeline that fetches player statistics and roster data using nflfastR. Optionally uploads data to Firebase Firestore using a custom nodejs script. Each data type can be fetched independently.
 
 ## Overview
 
@@ -14,29 +15,63 @@ This pipeline consists of separate R scripts for each data type:
 ## Features
 
 - **Modular Design**: Run only the data types you need
-- **Automatic Cleanup**: Old files are automatically removed when running new fetches
+- **Automatic File Management**: Old files are automatically removed to prevent project bloat
 - **Descriptive File Names**: Files are named based on seasons and data type
 - **Comprehensive Data**: All player statistics from 1999 to present are possible with nflfastr
 - **Optional Firebase Upload**: Upload to Firebase Firestore if needed
+- **Progress Tracking**: Real-time progress updates during data fetching
+- **Optimized Performance**: Separate files per year for faster processing
+
+## File Management Strategy
+
+### Automatic Cleanup
+
+**Why files are deleted**: This pipeline automatically removes old data files before creating new ones to prevent your project from growing significantly in size over time.
+
+**What happens**: When you run any R script, it will:
+1. **Delete old files** of the same type (e.g., old season data files)
+2. **Create new files** with the data you requested
+3. **Show you exactly** which files were removed
+
+**Your responsibility**: After running the scripts, you should:
+- **Copy files elsewhere** if you want to keep them
+- **Upload to a database** using the Node.js script
+- **Process the data** in your own applications
+- **Archive files** to external storage
+
+**Example workflow**:
+```bash
+# Run script (deletes old files, creates new ones)
+Rscript fetch_season_data.R --seasons=2024
+
+# Immediately after, do something with the files:
+# Option 1: Upload to Firebase
+node upload_nfl_data_to_firebase.js
+
+# Option 2: Copy to backup location
+copy data_output\season_stats\*.csv C:\backup\nfl_data\
+
+# Option 3: Process with your own tools
+python my_data_processor.py
+```
+
+This approach keeps your project directory clean while ensuring you always have the most recent data available.
 
 ## Part 1: R Setup and Data Fetching
 
-### Prerequisites for R
-
-- **R Environment**: R or RStudio installed
-- **Internet Connection**: For downloading NFL data
-
 ### Install R Dependencies
 
-Open **R** or **RStudio** and run:
+**Step 1**: Open **R** or **RStudio** and run:
 
 ```r
 install.packages(c("nflfastR", "dplyr"))
 ```
 
+**Step 2**: Exit R (type `q()` and press Enter)
+
 ### Fetch NFL Data
 
-Choose which data you want to fetch and run the appropriate script in **PowerShell** or **terminal**:
+**Step 3**: Open **PowerShell** or **terminal** and run the appropriate script:
 
 #### Fetch Season Statistics
 ```bash
@@ -140,7 +175,9 @@ The upload script will automatically:
 ├── upload_nfl_data_to_firebase.js   # Firebase upload script
 ├── data_output/                     # Output directory
 │   ├── season_stats/                # Season statistics files
-│   │   └── season_data_2024_REG.csv
+│   │   ├── season_data_2024_REG.csv
+│   │   ├── season_data_2023_REG.csv
+│   │   └── season_data_2022_REG.csv
 │   ├── weekly_stats/                # Weekly statistics files
 │   │   └── weekly_data_2024_REG.csv
 │   └── roster_data/                 # Roster data files
@@ -172,19 +209,24 @@ Contains player roster information including position, team, jersey number, etc.
 
 Files are automatically named based on the data they contain:
 
-- **Season Data**: `season_data_[SEASONS]_[SEASON_TYPE].csv`
+- **Season Data**: `season_data_[YEAR]_[SEASON_TYPE].csv`
   - Example: `season_data_2024_REG.csv`
-  - Example: `season_data_2020_to_2024_REG+POST.csv`
+  - Example: `season_data_2020_REG+POST.csv`
+  - **Multiple files**: Each year gets its own file for better performance
+  - **Range requests**: `--seasons=2020:2024` creates separate files for 2020, 2021, 2022, 2023, 2024
 
 - **Weekly Data**: `weekly_data_[SEASONS]_[SEASON_TYPE].csv`
   - Example: `weekly_data_2024_REG.csv`
   - Example: `weekly_data_2020_to_2024_REG+POST.csv`
+  - **Single file**: All weeks for the requested seasons in one file
 
 - **Roster Data**: `roster_data_[SEASONS].csv`
   - Example: `roster_data_2024.csv`
   - Example: `roster_data_2020_to_2024.csv`
+  - **Single file**: All roster data for the requested seasons in one file
 
 Where:
+- `[YEAR]` is a single year (e.g., `2024`)
 - `[SEASONS]` is either a single year (e.g., `2024`) or a range (e.g., `2020_to_2024`)
 - `[SEASON_TYPE]` is `REG`, `POST`, or `REG+POST`
 
@@ -192,34 +234,46 @@ Where:
 
 ### Example 1: Fetch Current Season Data Only
 ```bash
-# Fetch all current season data
+# Creates: season_data_2024_REG.csv
 Rscript fetch_season_data.R
-Rscript fetch_weekly_data.R
-Rscript fetch_roster_data.R
 ```
 
-### Example 2: Fetch Historical Data Only
+### Example 2: Fetch Historical Data (Multiple Files)
 ```bash
-# Fetch 5 years of season stats
+# Creates: season_data_2020_REG.csv, season_data_2021_REG.csv, 
+#          season_data_2022_REG.csv, season_data_2023_REG.csv, season_data_2024_REG.csv
 Rscript fetch_season_data.R --seasons=2020:2024
 ```
 
-### Example 3: Fetch Playoff Data Only
+### Example 3: Fetch Playoff Data (Multiple Files)
 ```bash
-# Fetch current season including playoffs
+# Creates: season_data_2024_REG+POST.csv
 Rscript fetch_season_data.R --seasons=2024 --season-type=REG+POST
-Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
 ```
 
 ### Example 4: Complete Pipeline (R + Firebase)
 ```bash
-# Step 1: Fetch data with R
-Rscript fetch_season_data.R
-Rscript fetch_weekly_data.R
-Rscript fetch_roster_data.R
+# Step 1: Fetch data with R (creates multiple files)
+Rscript fetch_season_data.R --seasons=2020:2024
 
-# Step 2: Upload to Firebase
+# Step 2: Upload all files to Firebase
 node upload_nfl_data_to_firebase.js
+```
+
+### Example 5: File Management Workflow
+```bash
+# Step 1: Fetch new data (old files are automatically deleted)
+Rscript fetch_season_data.R --seasons=2024
+
+# Step 2: Immediately process the files (before next run deletes them)
+# Option A: Upload to Firebase
+node upload_nfl_data_to_firebase.js
+
+# Option B: Copy to backup
+copy data_output\season_stats\*.csv C:\backup\nfl_data\
+
+# Option C: Process with your tools
+python my_analysis.py data_output/season_stats/
 ```
 
 ## Configuration
@@ -280,15 +334,22 @@ The upload script provides detailed progress information:
    - **Correct**: Open R/RStudio → `install.packages(c("nflfastR", "dplyr"))`
    - **Wrong**: PowerShell → `install.packages(c("nflfastR", "dplyr"))`
 
-2. **R Script Errors**: 
+2. **"Error: unexpected symbol in 'Rscript'" Error**:
+   - **Problem**: You're trying to run `Rscript` commands in R console
+   - **Solution**: `Rscript` commands must be run in PowerShell/terminal, not in R
+   - **Correct**: PowerShell → `Rscript fetch_season_data.R`
+   - **Wrong**: R Console → `Rscript fetch_season_data.R`
+   - **Fix**: Exit R (`q()`) → Open PowerShell → Run `Rscript` command
+
+3. **R Script Errors**: 
    - **Problem**: R scripts fail to run
    - **Solution**: Make sure you've installed the required packages in R/RStudio first
    - **Check**: Ensure `nflfastR` and `dplyr` packages are installed
 
-3. **Firebase Authentication** (if using Firebase): Ensure `.env` file exists with correct credentials
-4. **Memory Issues**: R scripts load large datasets into memory
-5. **Rate Limiting** (if using Firebase): Adjust `BATCH_DELAY_SECONDS` if you hit Firebase rate limits
-6. **Disk Space**: Ensure sufficient space for CSV files
+4. **Firebase Authentication** (if using Firebase): Ensure `.env` file exists with correct credentials
+5. **Memory Issues**: R scripts load large datasets into memory
+6. **Rate Limiting** (if using Firebase): Adjust `BATCH_DELAY_SECONDS` if you hit Firebase rate limits
+7. **Disk Space**: Ensure sufficient space for CSV files
 
 ### Resume Failed Uploads
 
@@ -305,22 +366,39 @@ All errors are displayed in the console during execution. Review the console out
 
 ## Performance
 
-- **R Scripts**: ~2-5 minutes per season depending on data type
-- **Upload Script**: ~30-60 minutes for a full season (depending on network and Firebase performance)
-- **Memory Usage**: ~1-2GB RAM during R processing
-- **Disk Usage**: ~50-200MB per season depending on data type
+### R Scripts Performance
+- **Single year**: ~30-60 seconds per year
+- **Multiple years**: ~2-5 minutes for 5 years (with progress updates)
+- **Memory usage**: ~500MB-1GB RAM during processing
+- **Progress tracking**: Real-time updates showing current year and percentage complete
+
+### File Management Benefits
+- **Separate files per year**: Faster processing and uploads
+- **Automatic cleanup**: Prevents project directory from growing large
+- **Smaller file sizes**: ~680KB per year vs 18MB for all years
+- **Better error recovery**: If one year fails, others still succeed
+
+### Firebase Upload Performance
+- **Multiple files**: Node.js automatically combines all year files
+- **Batch processing**: Efficient uploads with progress tracking
+- **Memory efficient**: Processes smaller files individually
+- **Upload time**: ~30-60 minutes for 5 years of data
 
 ## Data Volume Estimates
 
-### Per Season:
-- **Season Stats**: ~2,000 players × 1 season = ~2,000 records
+### Per Year (Season Data):
+- **Season Stats**: ~1,800 players × 1 year = ~1,800 records
+- **File Size**: ~680KB per year
+- **Processing Time**: ~30-60 seconds per year
+
+### Per Season (Weekly/Roster Data):
 - **Weekly Stats**: ~2,000 players × 17 weeks = ~34,000 records  
 - **Roster Data**: ~2,000 players × 1 season = ~2,000 records
 
-### Historical Data (1999-2024):
-- **Season Stats**: ~50,000 records
-- **Weekly Stats**: ~850,000 records
-- **Roster Data**: ~50,000 records
+### Historical Data (1999-2025):
+- **Season Stats**: ~49,000 records across 27 separate files
+- **Weekly Stats**: ~850,000 records in single files
+- **Roster Data**: ~50,000 records in single files
 
 ## Future Enhancements
 

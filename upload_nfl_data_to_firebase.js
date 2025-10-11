@@ -186,6 +186,24 @@ function createRosterDocId(row) {
     return `${row.season}_${row.gsis_id}`;
 }
 
+// Find all files matching pattern in a directory
+function findMostRecentFiles(directory, pattern) {
+    if (!fs.existsSync(directory)) {
+        return [];
+    }
+    
+    const files = fs.readdirSync(directory)
+        .filter(file => file.match(pattern))
+        .map(file => ({
+            name: file,
+            path: path.join(directory, file),
+            mtime: fs.statSync(path.join(directory, file)).mtime
+        }))
+        .sort((a, b) => b.mtime - a.mtime);
+    
+    return files;
+}
+
 // Find the most recent file in a directory
 function findMostRecentFile(directory, pattern) {
     if (!fs.existsSync(directory)) {
@@ -324,11 +342,12 @@ async function uploadAllData() {
         // Find files to upload
         const filesToUpload = {};
         
-        // Check for season data files
-        const seasonFile = findMostRecentFile(DATA_DIRS.season_stats, /season_data_.*\.csv$/);
-        if (seasonFile) {
-            filesToUpload.season_stats = seasonFile;
-            log(`Found season data file: ${seasonFile.name}`);
+        // Check for season data files (now supports multiple files per year)
+        const seasonFiles = findMostRecentFiles(DATA_DIRS.season_stats, /season_data_.*\.csv$/);
+        if (seasonFiles.length > 0) {
+            filesToUpload.season_stats = seasonFiles;
+            log(`Found ${seasonFiles.length} season data files:`);
+            seasonFiles.forEach(file => log(`  - ${file.name}`));
         }
         
         // Check for weekly data files
@@ -356,9 +375,23 @@ async function uploadAllData() {
         const dataSets = {};
         
         for (const [dataType, fileInfo] of Object.entries(filesToUpload)) {
-            log(`Parsing ${dataType} from ${fileInfo.name}...`);
-            dataSets[dataType] = await parseCSV(fileInfo.path);
-            log(`Parsed ${dataSets[dataType].length} ${dataType} records`);
+            if (Array.isArray(fileInfo)) {
+                // Multiple files (like season data)
+                log(`Parsing ${dataType} from ${fileInfo.length} files...`);
+                const allData = [];
+                for (const file of fileInfo) {
+                    log(`  Parsing ${file.name}...`);
+                    const fileData = await parseCSV(file.path);
+                    allData.push(...fileData);
+                }
+                dataSets[dataType] = allData;
+                log(`Parsed ${dataSets[dataType].length} total ${dataType} records from ${fileInfo.length} files`);
+            } else {
+                // Single file
+                log(`Parsing ${dataType} from ${fileInfo.name}...`);
+                dataSets[dataType] = await parseCSV(fileInfo.path);
+                log(`Parsed ${dataSets[dataType].length} ${dataType} records`);
+            }
         }
         
         // Upload data
