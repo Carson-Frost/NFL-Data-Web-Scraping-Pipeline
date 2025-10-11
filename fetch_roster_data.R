@@ -3,6 +3,7 @@
 # ==============================================================================
 # NFL ROSTER DATA FETCHER
 # Fetches comprehensive player roster data using nflfastR
+# Creates separate files for each year for better performance
 # ==============================================================================
 
 # Load required libraries
@@ -50,16 +51,6 @@ if (!dir.exists(OUTPUT_DIR)) {
   cat("Created output directory:", OUTPUT_DIR, "\n")
 }
 
-# Clean up old files in the directory
-old_files <- list.files(OUTPUT_DIR, pattern = "*.csv", full.names = TRUE)
-if (length(old_files) > 0) {
-  cat("Cleaning up old files:\n")
-  for (file in old_files) {
-    cat("  Removing:", basename(file), "\n")
-    file.remove(file)
-  }
-}
-
 # Logging function
 log_message <- function(message) {
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
@@ -71,97 +62,90 @@ log_message("=== NFL ROSTER DATA FETCH: Starting ===")
 log_message(paste("Seasons:", min(SEASONS), "to", max(SEASONS)))
 log_message(paste("Output directory:", OUTPUT_DIR))
 
+# Clean up old files in the directory
+old_files <- list.files(OUTPUT_DIR, pattern = "*.csv", full.names = TRUE)
+if (length(old_files) > 0) {
+  log_message("Cleaning up old files:")
+  for (file in old_files) {
+    log_message(paste("  Removing:", basename(file)))
+    file.remove(file)
+  }
+  log_message(paste("✓ Removed", length(old_files), "old files"))
+} else {
+  log_message("No old files to clean up")
+}
+
 # ==============================================================================
-# FETCH ROSTER DATA
+# FETCH ROSTER DATA BY YEAR
 # ==============================================================================
 log_message("Fetching roster data...")
 
-tryCatch({
-  roster_data <- fast_scraper_roster(seasons = SEASONS)
+total_seasons <- length(SEASONS)
+files_created <- 0
+total_records <- 0
+
+for (i in 1:total_seasons) {
+  season <- SEASONS[i]
+  log_message(paste("Processing season", season, "(", i, "of", total_seasons, ")..."))
   
-  log_message(paste("✓ Roster data fetched:", nrow(roster_data), "rows"))
-  log_message(paste("✓ Columns:", ncol(roster_data)))
+  tryCatch({
+    # Fetch data for this season
+    roster_data <- fast_scraper_roster(seasons = season)
+    
+    if (nrow(roster_data) > 0) {
+      # Data cleaning - select relevant columns
+      roster_clean <- roster_data %>%
+        select(
+          season, team, position, depth_chart_position, jersey_number, 
+          status, full_name, first_name, last_name, birth_date, 
+          height, weight, college, gsis_id, espn_id, sportradar_id, 
+          yahoo_id, rotowire_id, pff_id, pfr_id, fantasy_data_id, 
+          sleeper_id, years_exp, headshot_url, ngs_position, 
+          week, game_type, status_description_abbr, football_name, esb_id
+        )
+      
+      # Create filename
+      filename <- paste0("roster_data_", season, ".csv")
+      filepath <- file.path(OUTPUT_DIR, filename)
+      
+      # Export to CSV
+      write.csv(roster_clean, filepath, row.names = FALSE)
+      
+      # Log progress
+      file_size_mb <- round(file.size(filepath) / 1024 / 1024, 2)
+      log_message(paste("✓ Season", season, "-", nrow(roster_clean), "records,", file_size_mb, "MB"))
+      
+      files_created <- files_created + 1
+      total_records <- total_records + nrow(roster_clean)
+    } else {
+      log_message(paste("⚠ Season", season, "- No data found"))
+    }
+    
+  }, error = function(e) {
+    log_message(paste("❌ Error processing season", season, ":", e$message))
+  })
   
-  # Inspect data structure
-  log_message("Roster data structure:")
-  log_message(paste("  - Unique players:", length(unique(roster_data$gsis_id))))
-  log_message(paste("  - Seasons covered:", min(roster_data$season), "to", max(roster_data$season)))
-  log_message(paste("  - Teams:", length(unique(roster_data$team))))
-  log_message(paste("  - Positions:", paste(unique(roster_data$position), collapse = ", ")))
-  
-  # Check for missing data
-  na_counts <- colSums(is.na(roster_data))
-  log_message(paste("  - Columns with NAs:", sum(na_counts > 0)))
-  
-}, error = function(e) {
-  log_message(paste("ERROR fetching roster data:", e$message))
-  quit(status = 1)
-})
-
-# ==============================================================================
-# DATA CLEANING
-# ==============================================================================
-log_message("Applying data cleaning...")
-
-# Select relevant columns for consistency
-roster_clean <- roster_data %>%
-  select(
-    season, team, position, depth_chart_position, jersey_number, 
-    status, full_name, first_name, last_name, birth_date, 
-    height, weight, college, gsis_id, espn_id, sportradar_id, 
-    yahoo_id, rotowire_id, pff_id, pfr_id, fantasy_data_id, 
-    sleeper_id, years_exp, headshot_url, ngs_position, 
-    week, game_type, status_description_abbr, football_name, esb_id
-  )
-
-log_message(paste("Selected", ncol(roster_clean), "relevant columns"))
-log_message("✓ Data cleaning completed")
-
-# ==============================================================================
-# EXPORT TO CSV FILE
-# ==============================================================================
-log_message("Exporting data to CSV file...")
-
-# Create descriptive filename
-if (length(SEASONS) == 1) {
-  season_str <- as.character(SEASONS)
-} else {
-  season_str <- paste0(min(SEASONS), "_to_", max(SEASONS))
-}
-filename <- paste0("roster_data_", season_str, ".csv")
-filepath <- file.path(OUTPUT_DIR, filename)
-
-write.csv(roster_clean, filepath, row.names = FALSE)
-log_message(paste("✓ Roster data exported to:", filepath))
-
-# Check file size
-if (file.exists(filepath)) {
-  file_size_mb <- round(file.size(filepath) / 1024 / 1024, 2)
-  log_message(paste("  - File size:", file_size_mb, "MB"))
-} else {
-  log_message("❌ ERROR: Roster data file not created!")
-  quit(status = 1)
+  # Progress update
+  progress <- round((i / total_seasons) * 100, 1)
+  log_message(paste("Progress:", progress, "%"))
 }
 
 # ==============================================================================
 # FINAL SUMMARY
 # ==============================================================================
 log_message("=== FINAL SUMMARY ===")
-log_message(paste("Roster data:"))
-log_message(paste("  - Total records:", nrow(roster_clean)))
-log_message(paste("  - Unique players:", length(unique(roster_clean$gsis_id))))
-log_message(paste("  - Seasons:", min(roster_clean$season), "to", max(roster_clean$season)))
-log_message(paste("  - Teams:", length(unique(roster_clean$team))))
-log_message(paste("  - Columns:", ncol(roster_clean)))
+log_message(paste("Total seasons processed:", total_seasons))
+log_message(paste("Files created:", files_created))
+log_message(paste("Total records:", total_records))
 
-# Sample data inspection
-log_message("Sample roster record:")
-sample_roster <- roster_clean[1, ]
-log_message(paste("  - Player:", sample_roster$full_name, "(", sample_roster$gsis_id, ")"))
-log_message(paste("  - Season:", sample_roster$season, "Team:", sample_roster$team))
-log_message(paste("  - Position:", sample_roster$position, "Jersey:", sample_roster$jersey_number))
+if (files_created > 0) {
+  log_message("Files created:")
+  created_files <- list.files(OUTPUT_DIR, pattern = "*.csv", full.names = FALSE)
+  for (file in created_files) {
+    file_size_mb <- round(file.size(file.path(OUTPUT_DIR, file)) / 1024 / 1024, 2)
+    log_message(paste("  -", file, "(", file_size_mb, "MB)"))
+  }
+}
 
 log_message("=== NFL ROSTER DATA FETCH: Complete ===")
-log_message(paste("File created:", filename))
-log_message("")
 log_message("Ready for Node.js upload script!")

@@ -350,18 +350,20 @@ async function uploadAllData() {
             seasonFiles.forEach(file => log(`  - ${file.name}`));
         }
         
-        // Check for weekly data files
-        const weeklyFile = findMostRecentFile(DATA_DIRS.weekly_stats, /weekly_data_.*\.csv$/);
-        if (weeklyFile) {
-            filesToUpload.weekly_stats = weeklyFile;
-            log(`Found weekly data file: ${weeklyFile.name}`);
+        // Check for weekly data files (now supports multiple files per year)
+        const weeklyFiles = findMostRecentFiles(DATA_DIRS.weekly_stats, /weekly_data_.*\.csv$/);
+        if (weeklyFiles.length > 0) {
+            filesToUpload.weekly_stats = weeklyFiles;
+            log(`Found ${weeklyFiles.length} weekly data files:`);
+            weeklyFiles.forEach(file => log(`  - ${file.name}`));
         }
         
-        // Check for roster data files
-        const rosterFile = findMostRecentFile(DATA_DIRS.roster_data, /roster_data_.*\.csv$/);
-        if (rosterFile) {
-            filesToUpload.roster_data = rosterFile;
-            log(`Found roster data file: ${rosterFile.name}`);
+        // Check for roster data files (now supports multiple files per year)
+        const rosterFiles = findMostRecentFiles(DATA_DIRS.roster_data, /roster_data_.*\.csv$/);
+        if (rosterFiles.length > 0) {
+            filesToUpload.roster_data = rosterFiles;
+            log(`Found ${rosterFiles.length} roster data files:`);
+            rosterFiles.forEach(file => log(`  - ${file.name}`));
         }
         
         if (Object.keys(filesToUpload).length === 0) {

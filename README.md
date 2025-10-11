@@ -179,9 +179,13 @@ The upload script will automatically:
 │   │   ├── season_data_2023_REG.csv
 │   │   └── season_data_2022_REG.csv
 │   ├── weekly_stats/                # Weekly statistics files
-│   │   └── weekly_data_2024_REG.csv
+│   │   ├── weekly_data_2024_REG.csv
+│   │   ├── weekly_data_2023_REG.csv
+│   │   └── weekly_data_2022_REG.csv
 │   └── roster_data/                 # Roster data files
-│       └── roster_data_2024.csv
+│       ├── roster_data_2024.csv
+│       ├── roster_data_2023.csv
+│       └── roster_data_2022.csv
 ├── firebase-env-example.txt         # Firebase environment template
 ├── GITHUB_ACTIONS_SETUP.md          # GitHub Actions setup guide
 ├── package.json                     # Node.js dependencies
@@ -215,15 +219,17 @@ Files are automatically named based on the data they contain:
   - **Multiple files**: Each year gets its own file for better performance
   - **Range requests**: `--seasons=2020:2024` creates separate files for 2020, 2021, 2022, 2023, 2024
 
-- **Weekly Data**: `weekly_data_[SEASONS]_[SEASON_TYPE].csv`
+- **Weekly Data**: `weekly_data_[YEAR]_[SEASON_TYPE].csv`
   - Example: `weekly_data_2024_REG.csv`
-  - Example: `weekly_data_2020_to_2024_REG+POST.csv`
-  - **Single file**: All weeks for the requested seasons in one file
+  - Example: `weekly_data_2020_REG+POST.csv`
+  - **Multiple files**: Each year gets its own file for better performance
+  - **Range requests**: `--seasons=2020:2024` creates separate files for 2020, 2021, 2022, 2023, 2024
 
-- **Roster Data**: `roster_data_[SEASONS].csv`
+- **Roster Data**: `roster_data_[YEAR].csv`
   - Example: `roster_data_2024.csv`
-  - Example: `roster_data_2020_to_2024.csv`
-  - **Single file**: All roster data for the requested seasons in one file
+  - Example: `roster_data_2020.csv`
+  - **Multiple files**: Each year gets its own file for better performance
+  - **Range requests**: `--seasons=2020:2024` creates separate files for 2020, 2021, 2022, 2023, 2024
 
 Where:
 - `[YEAR]` is a single year (e.g., `2024`)
@@ -243,18 +249,34 @@ Rscript fetch_season_data.R
 # Creates: season_data_2020_REG.csv, season_data_2021_REG.csv, 
 #          season_data_2022_REG.csv, season_data_2023_REG.csv, season_data_2024_REG.csv
 Rscript fetch_season_data.R --seasons=2020:2024
+
+# Creates: weekly_data_2020_REG.csv, weekly_data_2021_REG.csv,
+#          weekly_data_2022_REG.csv, weekly_data_2023_REG.csv, weekly_data_2024_REG.csv
+Rscript fetch_weekly_data.R --seasons=2020:2024
+
+# Creates: roster_data_2020.csv, roster_data_2021.csv,
+#          roster_data_2022.csv, roster_data_2023.csv, roster_data_2024.csv
+Rscript fetch_roster_data.R --seasons=2020:2024
 ```
 
 ### Example 3: Fetch Playoff Data (Multiple Files)
 ```bash
 # Creates: season_data_2024_REG+POST.csv
 Rscript fetch_season_data.R --seasons=2024 --season-type=REG+POST
+
+# Creates: weekly_data_2024_REG+POST.csv
+Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
+
+# Creates: roster_data_2024.csv (roster data doesn't have season type)
+Rscript fetch_roster_data.R --seasons=2024
 ```
 
 ### Example 4: Complete Pipeline (R + Firebase)
 ```bash
-# Step 1: Fetch data with R (creates multiple files)
+# Step 1: Fetch data with R (creates multiple files for each data type)
 Rscript fetch_season_data.R --seasons=2020:2024
+Rscript fetch_weekly_data.R --seasons=2020:2024
+Rscript fetch_roster_data.R --seasons=2020:2024
 
 # Step 2: Upload all files to Firebase
 node upload_nfl_data_to_firebase.js
