@@ -1,34 +1,24 @@
-# NFL Player Statistics Data Pipeline
+# NFL Data Pipeline - Manual Execution
 
-A comprehensive data pipeline that fetches all NFL player statistics since 1999 and uploads them to Firebase Firestore.
+A modular NFL data pipeline that fetches player statistics and roster data using nflfastR and uploads them to Firebase Firestore. Each data type can be fetched independently.
 
 ## Overview
 
-This pipeline consists of two main components:
+This pipeline consists of separate R scripts for each data type and a Node.js upload script:
 
-1. **R Script** (`nfl_player_stats_fetch.R`) - Fetches comprehensive player statistics using the `nflfastR` package
-2. **Node.js Script** (`upload_player_stats_to_firebase.js`) - Uploads the data to Firebase Firestore with batch processing and error handling
+1. **`fetch_season_data.R`** - Fetches comprehensive player season statistics
+2. **`fetch_weekly_data.R`** - Fetches comprehensive player weekly statistics  
+3. **`fetch_roster_data.R`** - Fetches player roster information
+4. **`upload_nfl_data_to_firebase.js`** - Uploads data to Firebase Firestore
 
 ## Features
 
-- **Comprehensive Data**: All player statistics from 1999-2024 (25+ years of data)
-- **Two Granularities**: Season-level and week-level statistics
-- **Batch Processing**: Efficient Firebase uploads with 500-document batches
+- **Modular Design**: Run only the data types you need
+- **Automatic Cleanup**: Old files are automatically removed when running new fetches
+- **Descriptive File Names**: Files are named based on seasons and data type
+- **Comprehensive Data**: All player statistics from 1999 to present
+- **Batch Processing**: Efficient Firebase uploads with error handling
 - **Checkpoint Recovery**: Resume uploads if the process crashes
-- **Error Handling**: Detailed error logging and graceful failure handling
-- **Progress Tracking**: Real-time progress updates during upload
-
-## Database Schema
-
-### Collection 1: `/season_stats/{year_playerId}`
-Document ID format: `"2025_00-0036389"`
-
-Contains player statistics aggregated by season with all 113 stat columns.
-
-### Collection 2: `/weekly_stats/{year_week_playerId}`
-Document ID format: `"2025_05_00-0036389"`
-
-Contains player statistics for individual weeks with all 113 stat columns.
 
 ## Setup
 
@@ -51,84 +41,210 @@ install.packages(c("nflfastR", "dplyr"))
 npm install
 ```
 
-3. Set up Firebase environment variables:
+3. Set up Firebase environment variables in `.env` file:
 ```bash
-export FIREBASE_PROJECT_ID="your-project-id"
-export FIREBASE_PRIVATE_KEY="your-private-key"
-export FIREBASE_CLIENT_EMAIL="your-client-email"
+FIREBASE_PROJECT_ID="your-project-id"
+FIREBASE_PRIVATE_KEY="your-private-key"
+FIREBASE_CLIENT_EMAIL="your-client-email"
 ```
 
 ## Usage
 
-### Step 1: Fetch Player Statistics
+### Step 1: Fetch Data (Choose One or More)
 
-Run the R script to fetch and export player statistics:
-
+#### Fetch Season Statistics
 ```bash
-Rscript nfl_player_stats_fetch.R
+# Fetch current season (2024)
+Rscript fetch_season_data.R
+
+# Fetch specific season
+Rscript fetch_season_data.R --seasons=2023
+
+# Fetch range of seasons
+Rscript fetch_season_data.R --seasons=2020:2024
+
+# Fetch with different season type
+Rscript fetch_season_data.R --seasons=2024 --season-type=REG+POST
 ```
 
-This will create:
-- `nfl_data_output/season_stats.csv` (~50,000 records)
-- `nfl_data_output/weekly_stats.csv` (~850,000 records)
+**Parameters:**
+- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2024)
+- `--season-type=TYPE` - Season type: REG, POST, or REG+POST (default: REG)
+
+#### Fetch Weekly Statistics
+```bash
+# Fetch current season weekly stats
+Rscript fetch_weekly_data.R
+
+# Fetch specific season weekly stats
+Rscript fetch_weekly_data.R --seasons=2023
+
+# Fetch range of seasons weekly stats
+Rscript fetch_weekly_data.R --seasons=2020:2024
+
+# Fetch with different season type
+Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
+```
+
+**Parameters:**
+- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2024)
+- `--season-type=TYPE` - Season type: REG, POST, or REG+POST (default: REG)
+
+#### Fetch Roster Data
+```bash
+# Fetch current season roster
+Rscript fetch_roster_data.R
+
+# Fetch specific season roster
+Rscript fetch_roster_data.R --seasons=2023
+
+# Fetch range of seasons roster
+Rscript fetch_roster_data.R --seasons=2020:2024
+```
+
+**Parameters:**
+- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2024)
 
 ### Step 2: Upload to Firebase
 
-Run the Node.js script to upload the data:
+After running one or more R scripts, upload the data to Firebase:
 
 ```bash
-npm run upload
+node upload_nfl_data_to_firebase.js
 ```
 
-Or directly:
-```bash
-node upload_player_stats_to_firebase.js
-```
-
-## Expected Data Volume
-
-- **Season Stats**: ~50,000 documents (2,000 players × 25 seasons)
-- **Weekly Stats**: ~850,000 documents (2,000 players × 25 seasons × 17 weeks)
-- **Total Upload**: ~1.8 million write operations
+The upload script will automatically:
+- Find the most recent files in each data directory
+- Upload them to the appropriate Firebase collections
+- Handle batch processing and error recovery
+- Provide progress updates
 
 ## File Structure
 
 ```
-├── nfl_player_stats_fetch.R          # R script to fetch player stats
-├── upload_player_stats_to_firebase.js # Node.js upload script
-├── package.json                      # Node.js dependencies
-├── nfl_data_output/                  # Output directory
-│   ├── season_stats.csv             # Season-level statistics
-│   └── weekly_stats.csv             # Week-level statistics
-├── upload_checkpoint.json           # Checkpoint file (auto-generated)
-├── upload_errors.json               # Error log (auto-generated)
+├── fetch_season_data.R              # Season statistics fetcher
+├── fetch_weekly_data.R              # Weekly statistics fetcher
+├── fetch_roster_data.R              # Roster data fetcher
+├── upload_nfl_data_to_firebase.js   # Firebase upload script
+├── data_output/                     # Output directory
+│   ├── season_stats/                # Season statistics files
+│   │   └── season_data_2024_REG.csv
+│   ├── weekly_stats/                # Weekly statistics files
+│   │   └── weekly_data_2024_REG.csv
+│   └── roster_data/                 # Roster data files
+│       └── roster_data_2024.csv
+├── firebase-env-example.txt         # Firebase environment template
+├── GITHUB_ACTIONS_SETUP.md          # GitHub Actions setup guide
+├── package.json                     # Node.js dependencies
 └── README.md                        # This file
+```
+
+## Database Schema
+
+### Collection 1: `/season_stats/{year_playerId}`
+Document ID format: `"2024_00-0036389"`
+
+Contains player statistics aggregated by season with all stat columns.
+
+### Collection 2: `/weekly_stats/{year_week_playerId}`
+Document ID format: `"2024_05_00-0036389"`
+
+Contains player statistics for individual weeks with all stat columns.
+
+### Collection 3: `/roster_data/{year_playerId}`
+Document ID format: `"2024_00-0036389"`
+
+Contains player roster information including position, team, jersey number, etc.
+
+## File Naming Convention
+
+Files are automatically named based on the data they contain:
+
+- **Season Data**: `season_data_[SEASONS]_[SEASON_TYPE].csv`
+  - Example: `season_data_2024_REG.csv`
+  - Example: `season_data_2020_to_2024_REG+POST.csv`
+
+- **Weekly Data**: `weekly_data_[SEASONS]_[SEASON_TYPE].csv`
+  - Example: `weekly_data_2024_REG.csv`
+  - Example: `weekly_data_2020_to_2024_REG+POST.csv`
+
+- **Roster Data**: `roster_data_[SEASONS].csv`
+  - Example: `roster_data_2024.csv`
+  - Example: `roster_data_2020_to_2024.csv`
+
+Where:
+- `[SEASONS]` is either a single year (e.g., `2024`) or a range (e.g., `2020_to_2024`)
+- `[SEASON_TYPE]` is `REG`, `POST`, or `REG+POST`
+
+## Examples
+
+### Example 1: Fetch Current Season Data
+```bash
+# Fetch all current season data
+Rscript fetch_season_data.R
+Rscript fetch_weekly_data.R
+Rscript fetch_roster_data.R
+
+# Upload to Firebase
+node upload_nfl_data_to_firebase.js
+```
+
+### Example 2: Fetch Historical Data
+```bash
+# Fetch 5 years of season stats
+Rscript fetch_season_data.R --seasons=2020:2024
+
+# Upload to Firebase
+node upload_nfl_data_to_firebase.js
+```
+
+### Example 3: Fetch Playoff Data
+```bash
+# Fetch current season including playoffs
+Rscript fetch_season_data.R --seasons=2024 --season-type=REG+POST
+Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
+
+# Upload to Firebase
+node upload_nfl_data_to_firebase.js
 ```
 
 ## Configuration
 
-### R Script Configuration
+### Environment Variables
 
-Edit `nfl_player_stats_fetch.R` to modify:
-- `SEASONS`: Year range (default: 1999:2024)
-- `SEASON_TYPE`: "REG" for regular season, "REG+POST" for playoffs
-- `OUTPUT_DIR`: Output directory for CSV files
+You can override script parameters using environment variables:
 
-### Node.js Script Configuration
+```bash
+# Set seasons
+export SEASONS="2020:2024"
 
-Edit `upload_player_stats_to_firebase.js` to modify:
-- `BATCH_SIZE`: Documents per batch (default: 500)
-- `BATCH_DELAY`: Delay between batches in ms (default: 750)
-- File paths for CSV files and checkpoint
+# Set season type
+export SEASON_TYPE="REG+POST"
+
+# Run script
+Rscript fetch_season_data.R
+```
+
+### Firebase Upload Configuration
+
+Configure upload behavior in `.env`:
+
+```bash
+# Batch delay in seconds (default: 2)
+BATCH_DELAY_SECONDS=2
+
+# Maximum retry attempts (default: 3)
+MAX_RETRIES=3
+```
 
 ## Error Handling
 
 The pipeline includes comprehensive error handling:
 
-- **Checkpoint Recovery**: If the upload crashes, it can resume from where it left off
+- **Automatic Cleanup**: Old files are removed before new fetches
 - **Batch Error Handling**: Individual batch failures don't stop the entire process
-- **Error Logging**: All errors are logged to `upload_errors.json`
 - **Data Validation**: Verifies data integrity before and after upload
+- **Console Logging**: All errors are logged to the console during execution
 
 ## Monitoring Progress
 
@@ -137,58 +253,49 @@ The upload script provides detailed progress information:
 - Current batch number and total batches
 - Percentage complete
 - Records uploaded so far
-- Estimated time remaining
 - Error counts and details
+- File sizes and processing times
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Firebase Authentication**: Ensure environment variables are set correctly
-2. **Memory Issues**: The R script loads large datasets into memory
-3. **Rate Limiting**: Adjust `BATCH_DELAY` if you hit Firebase rate limits
-4. **Disk Space**: Ensure sufficient space for CSV files (~500MB total)
+1. **Firebase Authentication**: Ensure `.env` file exists with correct credentials
+2. **Memory Issues**: R scripts load large datasets into memory
+3. **Rate Limiting**: Adjust `BATCH_DELAY_SECONDS` if you hit Firebase rate limits
+4. **Disk Space**: Ensure sufficient space for CSV files
 
 ### Resume Failed Uploads
 
-If the upload fails, simply run the Node.js script again. It will automatically resume from the last checkpoint.
+If the upload fails, simply run the Node.js script again:
+```bash
+node upload_nfl_data_to_firebase.js
+```
+
+The script will start fresh and attempt to upload all available data files.
 
 ### Check Error Logs
 
-Review `upload_errors.json` for detailed error information if uploads fail.
+All errors are displayed in the console during execution. Review the console output for detailed error information if uploads fail.
 
 ## Performance
 
-- **R Script**: ~5-10 minutes to fetch all data
-- **Upload Script**: ~2-4 hours for complete upload (depending on network and Firebase performance)
-- **Memory Usage**: ~2-4GB RAM during R processing
-- **Disk Usage**: ~500MB for CSV files
+- **R Scripts**: ~2-5 minutes per season depending on data type
+- **Upload Script**: ~30-60 minutes for a full season (depending on network and Firebase performance)
+- **Memory Usage**: ~1-2GB RAM during R processing
+- **Disk Usage**: ~50-200MB per season depending on data type
 
-## GitHub Actions Workflows
+## Data Volume Estimates
 
-This project includes two GitHub Actions workflows for automated execution:
+### Per Season:
+- **Season Stats**: ~2,000 players × 1 season = ~2,000 records
+- **Weekly Stats**: ~2,000 players × 17 weeks = ~34,000 records  
+- **Roster Data**: ~2,000 players × 1 season = ~2,000 records
 
-### 1. Full Historical Pipeline (`nfl-player-stats-pipeline.yml`)
-- **Purpose**: Fetch ALL player stats since 1999
-- **Trigger**: Manual via GitHub Actions UI
-- **Data Volume**: ~1.8 million documents
-- **Runtime**: ~2-4 hours
-
-### 2. Weekly Updates (`nfl-weekly-update.yml`)
-- **Purpose**: Update current season data
-- **Trigger**: Every Monday at 2 AM UTC (automatic)
-- **Data Volume**: ~50,000 documents (current season)
-- **Runtime**: ~30-60 minutes
-
-### Setup Instructions:
-1. Set up Firebase service account
-2. Add secrets to GitHub repository:
-   - `FIREBASE_PROJECT_ID`
-   - `FIREBASE_PRIVATE_KEY`
-   - `FIREBASE_CLIENT_EMAIL`
-3. Run workflows from GitHub Actions tab
-
-See [GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md) for detailed setup instructions.
+### Historical Data (1999-2024):
+- **Season Stats**: ~50,000 records
+- **Weekly Stats**: ~850,000 records
+- **Roster Data**: ~50,000 records
 
 ## Future Enhancements
 
@@ -196,3 +303,4 @@ See [GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md) for detailed setup instru
 - Data validation and quality checks
 - Performance optimizations for larger datasets
 - Advanced error recovery and retry logic
+- Command-line interface for easier parameter management
