@@ -1,6 +1,10 @@
 // upload_nfl_data_to_firebase.js
 // This script uploads NFL data files to Firestore
 // with batch processing, checkpoint recovery, and error handling
+//
+// Usage: node upload_nfl_data_to_firebase.js <data_type>
+// Data types: season, weekly, roster
+// Example: node upload_nfl_data_to_firebase.js season
 
 require('dotenv').config();
 const admin = require('firebase-admin');
@@ -22,6 +26,42 @@ const DATA_DIRS = {
   weekly_stats: './data_output/weekly_stats',
   roster_data: './data_output/roster_data'
 };
+
+// Valid data types
+const VALID_DATA_TYPES = ['season', 'weekly', 'roster'];
+
+// Parse command line arguments
+function parseArguments() {
+  const args = process.argv.slice(2);
+  
+  if (args.length === 0) {
+    console.log('❌ Error: No data type specified');
+    console.log('');
+    console.log('Usage: node upload_nfl_data_to_firebase.js <data_type>');
+    console.log('');
+    console.log('Valid data types:');
+    console.log('  season  - Upload season statistics data');
+    console.log('  weekly  - Upload weekly statistics data');
+    console.log('  roster  - Upload roster data');
+    console.log('');
+    console.log('Examples:');
+    console.log('  node upload_nfl_data_to_firebase.js season');
+    console.log('  node upload_nfl_data_to_firebase.js weekly');
+    console.log('  node upload_nfl_data_to_firebase.js roster');
+    process.exit(1);
+  }
+  
+  const dataType = args[0].toLowerCase();
+  
+  if (!VALID_DATA_TYPES.includes(dataType)) {
+    console.log(`❌ Error: Invalid data type "${dataType}"`);
+    console.log('');
+    console.log('Valid data types are: ' + VALID_DATA_TYPES.join(', '));
+    process.exit(1);
+  }
+  
+  return dataType;
+}
 
 // Check if environment variables are loaded
 if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY || !process.env.FIREBASE_CLIENT_EMAIL) {
@@ -292,23 +332,25 @@ async function uploadData(data, collectionName, docIdFunction, checkpoint, dataT
 }
 
 // Verify upload by counting documents
-async function verifyUpload() {
-    log('Verifying upload...');
+async function verifyUpload(dataType) {
+    log(`Verifying ${dataType} upload...`);
     
     try {
-        const seasonStatsSnapshot = await db.collection('season_stats').get();
-        const weeklyStatsSnapshot = await db.collection('weekly_stats').get();
-        const rosterDataSnapshot = await db.collection('roster_data').get();
+        // Map data types to collection names
+        const collectionMap = {
+            'season': 'season_stats',
+            'weekly': 'weekly_stats', 
+            'roster': 'roster_data'
+        };
+        
+        const collectionName = collectionMap[dataType];
+        const snapshot = await db.collection(collectionName).get();
         
         log(`Verification results:`);
-        log(`  - Season stats documents: ${seasonStatsSnapshot.size}`);
-        log(`  - Weekly stats documents: ${weeklyStatsSnapshot.size}`);
-        log(`  - Roster data documents: ${rosterDataSnapshot.size}`);
+        log(`  - ${dataType} documents: ${snapshot.size}`);
         
         return {
-            seasonStatsCount: seasonStatsSnapshot.size,
-            weeklyStatsCount: weeklyStatsSnapshot.size,
-            rosterDataCount: rosterDataSnapshot.size
+            [dataType]: snapshot.size
         };
         
     } catch (error) {
@@ -318,9 +360,9 @@ async function verifyUpload() {
 }
 
 // Main upload function
-async function uploadAllData() {
+async function uploadAllData(selectedDataType) {
     const startTime = Date.now();
-    log('🚀 Starting NFL Data Firebase upload...');
+    log(`🚀 Starting NFL Data Firebase upload for ${selectedDataType}...`);
     log(`Configuration: Batch size=${BATCH_SIZE}, Delay=${BATCH_DELAY/1000}s, Max retries=${MAX_RETRIES}`);
     
     // Test Firebase connection first
@@ -339,120 +381,87 @@ async function uploadAllData() {
             log('No checkpoint found, starting fresh upload');
         }
         
-        // Find files to upload
-        const filesToUpload = {};
+        // Map data type to directory and collection info
+        const dataTypeMap = {
+            'season': {
+                dir: DATA_DIRS.season_stats,
+                pattern: /season_data_.*\.csv$/,
+                collection: 'season_stats',
+                docIdFunction: createSeasonDocId,
+                checkpointKey: 'season_stats'
+            },
+            'weekly': {
+                dir: DATA_DIRS.weekly_stats,
+                pattern: /weekly_data_.*\.csv$/,
+                collection: 'weekly_stats',
+                docIdFunction: createWeeklyDocId,
+                checkpointKey: 'weekly_stats'
+            },
+            'roster': {
+                dir: DATA_DIRS.roster_data,
+                pattern: /roster_data_.*\.csv$/,
+                collection: 'roster_data',
+                docIdFunction: createRosterDocId,
+                checkpointKey: 'roster_data'
+            }
+        };
         
-        // Check for season data files (now supports multiple files per year)
-        const seasonFiles = findMostRecentFiles(DATA_DIRS.season_stats, /season_data_.*\.csv$/);
-        if (seasonFiles.length > 0) {
-            filesToUpload.season_stats = seasonFiles;
-            log(`Found ${seasonFiles.length} season data files:`);
-            seasonFiles.forEach(file => log(`  - ${file.name}`));
-        }
+        const dataTypeInfo = dataTypeMap[selectedDataType];
         
-        // Check for weekly data files (now supports multiple files per year)
-        const weeklyFiles = findMostRecentFiles(DATA_DIRS.weekly_stats, /weekly_data_.*\.csv$/);
-        if (weeklyFiles.length > 0) {
-            filesToUpload.weekly_stats = weeklyFiles;
-            log(`Found ${weeklyFiles.length} weekly data files:`);
-            weeklyFiles.forEach(file => log(`  - ${file.name}`));
-        }
+        // Find files to upload for the selected data type
+        const files = findMostRecentFiles(dataTypeInfo.dir, dataTypeInfo.pattern);
         
-        // Check for roster data files (now supports multiple files per year)
-        const rosterFiles = findMostRecentFiles(DATA_DIRS.roster_data, /roster_data_.*\.csv$/);
-        if (rosterFiles.length > 0) {
-            filesToUpload.roster_data = rosterFiles;
-            log(`Found ${rosterFiles.length} roster data files:`);
-            rosterFiles.forEach(file => log(`  - ${file.name}`));
-        }
-        
-        if (Object.keys(filesToUpload).length === 0) {
-            log('❌ No data files found to upload');
-            log('Make sure you have run one of the R scripts first to generate data files');
+        if (files.length === 0) {
+            log(`❌ No ${selectedDataType} data files found to upload`);
+            log(`Make sure you have run the R script to generate ${selectedDataType} data files`);
+            log(`Expected files in: ${dataTypeInfo.dir}`);
             process.exit(1);
         }
         
-        // Parse CSV files
-        log('Parsing CSV files...');
-        const dataSets = {};
+        log(`Found ${files.length} ${selectedDataType} data files:`);
+        files.forEach(file => log(`  - ${file.name}`));
         
-        for (const [dataType, fileInfo] of Object.entries(filesToUpload)) {
-            if (Array.isArray(fileInfo)) {
-                // Multiple files (like season data)
-                log(`Parsing ${dataType} from ${fileInfo.length} files...`);
-                const allData = [];
-                for (const file of fileInfo) {
-                    log(`  Parsing ${file.name}...`);
-                    const fileData = await parseCSV(file.path);
-                    allData.push(...fileData);
-                }
-                dataSets[dataType] = allData;
-                log(`Parsed ${dataSets[dataType].length} total ${dataType} records from ${fileInfo.length} files`);
-            } else {
-                // Single file
-                log(`Parsing ${dataType} from ${fileInfo.name}...`);
-                dataSets[dataType] = await parseCSV(fileInfo.path);
-                log(`Parsed ${dataSets[dataType].length} ${dataType} records`);
-            }
+        // Parse CSV files
+        log(`Parsing ${selectedDataType} CSV files...`);
+        let allData = [];
+        
+        for (const file of files) {
+            log(`  Parsing ${file.name}...`);
+            const fileData = await parseCSV(file.path);
+            allData.push(...fileData);
         }
+        
+        log(`Parsed ${allData.length} total ${selectedDataType} records from ${files.length} files`);
         
         // Upload data
         const results = {};
         
-        // Upload season stats (if not already complete and file exists)
-        if (filesToUpload.season_stats && !checkpoint?.season_stats?.completed) {
-            results.season_stats = await uploadData(
-                dataSets.season_stats, 
-                'season_stats', 
-                createSeasonDocId, 
+        // Check if already complete
+        if (checkpoint?.[dataTypeInfo.checkpointKey]?.completed) {
+            log(`${selectedDataType} data already complete, skipping...`);
+            results[selectedDataType] = { successCount: 0, errorCount: 0 };
+        } else {
+            results[selectedDataType] = await uploadData(
+                allData, 
+                dataTypeInfo.collection, 
+                dataTypeInfo.docIdFunction, 
                 checkpoint, 
-                'season_stats'
+                dataTypeInfo.checkpointKey
             );
-        } else if (filesToUpload.season_stats) {
-            log('Season stats already complete, skipping...');
-            results.season_stats = { successCount: 0, errorCount: 0 };
-        }
-        
-        // Upload weekly stats (if not already complete and file exists)
-        if (filesToUpload.weekly_stats && !checkpoint?.weekly_stats?.completed) {
-            results.weekly_stats = await uploadData(
-                dataSets.weekly_stats, 
-                'weekly_stats', 
-                createWeeklyDocId, 
-                checkpoint, 
-                'weekly_stats'
-            );
-        } else if (filesToUpload.weekly_stats) {
-            log('Weekly stats already complete, skipping...');
-            results.weekly_stats = { successCount: 0, errorCount: 0 };
-        }
-        
-        // Upload roster data (if not already complete and file exists)
-        if (filesToUpload.roster_data && !checkpoint?.roster_data?.completed) {
-            results.roster_data = await uploadData(
-                dataSets.roster_data, 
-                'roster_data', 
-                createRosterDocId, 
-                checkpoint, 
-                'roster_data'
-            );
-        } else if (filesToUpload.roster_data) {
-            log('Roster data already complete, skipping...');
-            results.roster_data = { successCount: 0, errorCount: 0 };
         }
         
         // Verify upload
-        const verification = await verifyUpload();
+        const verification = await verifyUpload(selectedDataType);
         
-        // Clean up checkpoint file if everything is complete
-        const seasonComplete = !filesToUpload.season_stats || checkpoint?.season_stats?.completed;
-        const weeklyComplete = !filesToUpload.weekly_stats || checkpoint?.weekly_stats?.completed;
-        const rosterComplete = !filesToUpload.roster_data || checkpoint?.roster_data?.completed;
-        
-        if (seasonComplete && weeklyComplete && rosterComplete) {
-            if (fs.existsSync(CHECKPOINT_FILE)) {
+        // Clean up checkpoint file if upload is complete
+        if (checkpoint?.[dataTypeInfo.checkpointKey]?.completed || results[selectedDataType].successCount > 0) {
+            const allComplete = Object.keys(dataTypeMap).every(type => 
+                checkpoint?.[dataTypeMap[type].checkpointKey]?.completed
+            );
+            
+            if (allComplete && fs.existsSync(CHECKPOINT_FILE)) {
                 fs.unlinkSync(CHECKPOINT_FILE);
-                log('Checkpoint file deleted (upload complete)');
+                log('Checkpoint file deleted (all uploads complete)');
             }
         }
         
@@ -463,19 +472,17 @@ async function uploadAllData() {
         log('=== UPLOAD COMPLETE ===');
         log(`Total time: ${duration} seconds`);
         
-        for (const [dataType, result] of Object.entries(results)) {
-            log(`${dataType}: ${result.successCount} uploaded, ${result.errorCount} errors`);
-        }
+        const result = results[selectedDataType];
+        log(`${selectedDataType}: ${result.successCount} uploaded, ${result.errorCount} errors`);
         
         if (verification) {
-            log(`Verification: ${verification.seasonStatsCount} season docs, ${verification.weeklyStatsCount} weekly docs, ${verification.rosterDataCount} roster docs`);
+            log(`Verification: ${verification[selectedDataType]} ${selectedDataType} documents`);
         }
         
-        const totalErrors = Object.values(results).reduce((sum, result) => sum + result.errorCount, 0);
-        if (totalErrors > 0) {
-            log(`⚠️  ${totalErrors} total errors occurred. Check ${ERROR_LOG_FILE} for details.`);
+        if (result.errorCount > 0) {
+            log(`⚠️  ${result.errorCount} errors occurred. Check ${ERROR_LOG_FILE} for details.`);
         } else {
-            log('✅ All uploads completed successfully with no errors!');
+            log('✅ Upload completed successfully with no errors!');
         }
         
     } catch (error) {
@@ -485,8 +492,11 @@ async function uploadAllData() {
     }
 }
 
+// Parse command line arguments and run the upload
+const selectedDataType = parseArguments();
+
 // Run the upload
-uploadAllData()
+uploadAllData(selectedDataType)
     .then(() => {
         log('🎉 Firebase upload process completed!');
         process.exit(0);

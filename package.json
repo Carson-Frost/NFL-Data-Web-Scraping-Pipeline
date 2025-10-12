@@ -4,7 +4,9 @@
   "description": "NFL player statistics data pipeline using R and Node.js",
   "main": "upload_nfl_data_to_firebase.js",
   "scripts": {
-    "upload": "node upload_nfl_data_to_firebase.js",
+    "upload-season": "node upload_nfl_data_to_firebase.js season",
+    "upload-weekly": "node upload_nfl_data_to_firebase.js weekly",
+    "upload-roster": "node upload_nfl_data_to_firebase.js roster",
     "delete-collection": "node delete_firestore_collection.js",
     "fetch-season": "Rscript fetch_season_data.R",
     "fetch-weekly": "Rscript fetch_weekly_data.R",

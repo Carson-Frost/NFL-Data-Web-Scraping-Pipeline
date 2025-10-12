@@ -46,7 +46,7 @@ Rscript fetch_season_data.R --seasons=2024
 
 # Immediately after, do something with the files:
 # Option 1: Upload to Firebase
-node upload_nfl_data_to_firebase.js
+node upload_nfl_data_to_firebase.js season
 
 # Option 2: Copy to backup location
 copy data_output\season_stats\*.csv C:\backup\nfl_data\
@@ -154,15 +154,27 @@ FIREBASE_CLIENT_EMAIL="your-client-email"
 
 ### Upload Data to Firebase
 
-After fetching data with R scripts, upload to Firebase:
+After fetching data with R scripts, upload to Firebase. **You must specify which data type to upload:**
 
 ```bash
-node upload_nfl_data_to_firebase.js
+# Upload season statistics
+node upload_nfl_data_to_firebase.js season
+
+# Upload weekly statistics  
+node upload_nfl_data_to_firebase.js weekly
+
+# Upload roster data
+node upload_nfl_data_to_firebase.js roster
 ```
 
+**Valid data types:**
+- `season` - Upload season statistics data
+- `weekly` - Upload weekly statistics data  
+- `roster` - Upload roster data
+
 The upload script will automatically:
-- Find the most recent files in each data directory
-- Upload them to the appropriate Firebase collections
+- Find the most recent files for the specified data type
+- Upload them to the appropriate Firebase collection
 - Handle batch processing and error recovery
 - Provide progress updates
 
@@ -312,7 +324,9 @@ Rscript fetch_weekly_data.R --seasons=2020:2024
 Rscript fetch_roster_data.R --seasons=2020:2024
 
 # Step 2: Upload all files to Firebase
-node upload_nfl_data_to_firebase.js
+node upload_nfl_data_to_firebase.js season
+node upload_nfl_data_to_firebase.js weekly
+node upload_nfl_data_to_firebase.js roster
 ```
 
 ### Example 5: Clean Slate Firebase Workflow
@@ -325,7 +339,7 @@ node delete_firestore_collection.js season_stats
 Rscript fetch_season_data.R --seasons=2024
 
 # Step 3: Upload to Firebase
-node upload_nfl_data_to_firebase.js
+node upload_nfl_data_to_firebase.js season
 ```
 
 ### Example 6: File Management Workflow
@@ -335,7 +349,7 @@ Rscript fetch_season_data.R --seasons=2024
 
 # Step 2: Immediately process the files (before next run deletes them)
 # Option A: Upload to Firebase
-node upload_nfl_data_to_firebase.js
+node upload_nfl_data_to_firebase.js season
 
 # Option B: Copy to backup
 copy data_output\season_stats\*.csv C:\backup\nfl_data\
@@ -372,7 +386,9 @@ npm run fetch-weekly
 npm run fetch-roster
 
 # Node.js Scripts
-npm run upload
+npm run upload-season
+npm run upload-weekly
+npm run upload-roster
 npm run delete-collection season_stats
 ```
 
@@ -436,12 +452,12 @@ The upload script provides detailed progress information:
 
 ### Resume Failed Uploads
 
-If the upload fails, simply run the Node.js script again:
+If the upload fails, simply run the Node.js script again with the same data type:
 ```bash
-node upload_nfl_data_to_firebase.js
+node upload_nfl_data_to_firebase.js season
 ```
 
-The script will start fresh and attempt to upload all available data files.
+The script will resume from where it left off and attempt to upload the remaining data files.
 
 ### Check Error Logs
 
