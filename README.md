@@ -10,7 +10,7 @@ This pipeline consists of separate R scripts for each data type:
 1. **`fetch_season_data.R`** - Fetches player season statistics
 2. **`fetch_weekly_data.R`** - Fetches player weekly statistics  
 3. **`fetch_roster_data.R`** - Fetches player roster information
-4. **`upload_nfl_data_to_firebase.js`** - Optional: Uploads data to Firebase Firestore
+4. **`upload_nfl_data_to_firebase.js`** - Optional: Uploads data to Firebase Firestore (for my personal use case)
 
 ## Features
 
@@ -166,6 +166,38 @@ The upload script will automatically:
 - Handle batch processing and error recovery
 - Provide progress updates
 
+### Delete Firebase Collections
+
+**⚠️ WARNING: This permanently deletes all documents in a Firestore collection!**
+
+To safely delete a Firebase collection before uploading new data:
+
+```bash
+# Delete a specific collection
+node delete_firestore_collection.js season_stats
+
+# Or use npm script
+npm run delete-collection season_stats
+
+# Interactive mode (shows available collections)
+node delete_firestore_collection.js
+```
+
+**Safety Features:**
+- **User Confirmation**: Must type "DELETE" to confirm
+- **Batch Processing**: Deletes in batches of 500 to avoid limits
+- **Progress Tracking**: Shows deletion progress and statistics
+- **Error Handling**: Safe error recovery and logging
+
+**Example Usage:**
+```bash
+# Clean slate before uploading new season data
+node delete_firestore_collection.js season_stats
+# Type "DELETE" when prompted
+# Then upload new data
+node upload_nfl_data_to_firebase.js
+```
+
 ## File Structure
 
 ```
@@ -173,6 +205,7 @@ The upload script will automatically:
 ├── fetch_weekly_data.R              # Weekly statistics fetcher
 ├── fetch_roster_data.R              # Roster data fetcher
 ├── upload_nfl_data_to_firebase.js   # Firebase upload script
+├── delete_firestore_collection.js   # Firebase collection deletion script
 ├── data_output/                     # Output directory
 │   ├── season_stats/                # Season statistics files
 │   │   ├── season_data_2024_REG.csv
@@ -282,7 +315,20 @@ Rscript fetch_roster_data.R --seasons=2020:2024
 node upload_nfl_data_to_firebase.js
 ```
 
-### Example 5: File Management Workflow
+### Example 5: Clean Slate Firebase Workflow
+```bash
+# Step 1: Delete existing Firebase collection (with confirmation)
+node delete_firestore_collection.js season_stats
+# Type "DELETE" when prompted
+
+# Step 2: Fetch fresh data
+Rscript fetch_season_data.R --seasons=2024
+
+# Step 3: Upload to Firebase
+node upload_nfl_data_to_firebase.js
+```
+
+### Example 6: File Management Workflow
 ```bash
 # Step 1: Fetch new data (old files are automatically deleted)
 Rscript fetch_season_data.R --seasons=2024
@@ -313,6 +359,21 @@ $env:SEASON_TYPE="REG+POST"
 
 # Run script
 Rscript fetch_season_data.R
+```
+
+### NPM Scripts
+
+You can use npm scripts for convenience:
+
+```bash
+# R Scripts
+npm run fetch-season
+npm run fetch-weekly  
+npm run fetch-roster
+
+# Node.js Scripts
+npm run upload
+npm run delete-collection season_stats
 ```
 
 ### Firebase Upload Configuration

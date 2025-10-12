@@ -5,5 +5,11 @@
 node_modules/
 .DS_Store
 .env
-nfl_data_output/
+data_output/
 r_packages/
+
+# Firebase/Firestore files
+.firebaserc
+firebase.json
+firestore.indexes.json
+firestore.rules
