@@ -1,16 +1,20 @@
-# NFL Data Pipeline - Web Scraping with nflfastr
+# NFL Data Pipeline - Web Scraping with nflfastR
 (https://www.nflfastr.com/)
 
-A modular NFL data pipeline that fetches player statistics and roster data using nflfastR. Optionally uploads data to Firebase Firestore using a custom nodejs script. Each data type can be fetched independently.
+A modular NFL data pipeline that fetches player statistics and roster data using nflfastR. Uploads data to MongoDB Atlas using custom Node.js scripts. Each data type can be fetched independently.
 
 ## Overview
 
-This pipeline consists of separate R scripts for each data type:
+This pipeline consists of separate R scripts for data fetching and Node.js scripts for database uploads:
 
+### R Scripts (Data Fetching):
 1. **`fetch_season_data.R`** - Fetches player season statistics
 2. **`fetch_weekly_data.R`** - Fetches player weekly statistics  
 3. **`fetch_roster_data.R`** - Fetches player roster information
-4. **`upload_nfl_data_to_firebase.js`** - Optional: Uploads data to Firebase Firestore (for my personal use case)
+
+### Node.js Scripts (Database Upload):
+4. **`upload_nfl_data_to_mongodb.js`** - Uploads data to MongoDB Atlas
+5. **`delete_mongodb_collection.js`** - Deletes MongoDB collections
 
 ## Features
 
@@ -18,9 +22,11 @@ This pipeline consists of separate R scripts for each data type:
 - **Automatic File Management**: Old files are automatically removed to prevent project bloat
 - **Descriptive File Names**: Files are named based on seasons and data type
 - **Comprehensive Data**: All player statistics from 1999 to present are possible with nflfastr
-- **Optional Firebase Upload**: Upload to Firebase Firestore if needed
-- **Progress Tracking**: Real-time progress updates during data fetching
+- **MongoDB Atlas Integration**: Upload to MongoDB Atlas for analytics
+- **Progress Tracking**: Real-time progress updates during data fetching and uploads
 - **Optimized Performance**: Separate files per year for faster processing
+- **Error Handling**: Comprehensive error recovery and retry logic
+- **Clean Slate Operations**: Delete collections before uploading new data
 
 ## File Management Strategy
 
@@ -45,8 +51,8 @@ This pipeline consists of separate R scripts for each data type:
 Rscript fetch_season_data.R --seasons=2024
 
 # Immediately after, do something with the files:
-# Option 1: Upload to Firebase
-node upload_nfl_data_to_firebase.js season
+# Option 1: Upload to MongoDB (recommended)
+node upload_nfl_data_to_mongodb.js season
 
 # Option 2: Copy to backup location
 copy data_output\season_stats\*.csv C:\backup\nfl_data\
@@ -126,13 +132,13 @@ Rscript fetch_roster_data.R --seasons=2020:2024
 **Parameters:**
 - `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2024)
 
-## Part 2: Optional Firebase Upload
+## Part 2: MongoDB Atlas Database Upload
 
-### Prerequisites for Firebase Upload
+### Prerequisites
 
 - **Node.js Environment**: Node.js 16+ with npm
-- **Firebase Setup**: Firebase project with Firestore enabled
-- **Firebase Credentials**: Firebase service account credentials
+- **MongoDB Atlas Setup**: MongoDB Atlas cluster (free tier: 512 MB)
+- **Database Credentials**: MongoDB Atlas connection string
 
 ### Install Node.js Dependencies
 
@@ -142,29 +148,28 @@ Run in **PowerShell** or **terminal**:
 npm install
 ```
 
-### Set up Firebase Environment Variables
+### Set up Environment Variables
 
-Create a `.env` file in the project root with your Firebase credentials:
+Create a `.env` file in the project root with your MongoDB credentials. You can copy from `env-example.txt`:
 
 ```bash
-FIREBASE_PROJECT_ID="your-project-id"
-FIREBASE_PRIVATE_KEY="your-private-key"
-FIREBASE_CLIENT_EMAIL="your-client-email"
+MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/"
+MONGODB_DATABASE="nfl_data"
 ```
 
-### Upload Data to Firebase
+### Upload Data to MongoDB Atlas
 
-After fetching data with R scripts, upload to Firebase. **You must specify which data type to upload:**
+After fetching data with R scripts, upload to MongoDB Atlas. **You must specify which data type to upload:**
 
 ```bash
 # Upload season statistics
-node upload_nfl_data_to_firebase.js season
+node upload_nfl_data_to_mongodb.js season
 
 # Upload weekly statistics  
-node upload_nfl_data_to_firebase.js weekly
+node upload_nfl_data_to_mongodb.js weekly
 
 # Upload roster data
-node upload_nfl_data_to_firebase.js roster
+node upload_nfl_data_to_mongodb.js roster
 ```
 
 **Valid data types:**
@@ -174,40 +179,34 @@ node upload_nfl_data_to_firebase.js roster
 
 The upload script will automatically:
 - Find the most recent files for the specified data type
-- Upload them to the appropriate Firebase collection
+- Upload them to the appropriate database collection
 - Handle batch processing and error recovery
 - Provide progress updates
+- Always start fresh (no checkpoint system)
 
-### Delete Firebase Collections
+### Delete MongoDB Collections
 
-**⚠️ WARNING: This permanently deletes all documents in a Firestore collection!**
-
-To safely delete a Firebase collection before uploading new data:
+**⚠️ WARNING: This permanently deletes all documents in a collection!**
 
 ```bash
 # Delete a specific collection
-node delete_firestore_collection.js season_stats
+node delete_mongodb_collection.js season_stats
 
-# Or use npm script
-npm run delete-collection season_stats
-
-# Interactive mode (shows available collections)
-node delete_firestore_collection.js
+# Delete all collections
+node delete_mongodb_collection.js all
 ```
 
-**Safety Features:**
-- **User Confirmation**: Must type "DELETE" to confirm
-- **Batch Processing**: Deletes in batches of 500 to avoid limits
+**MongoDB Safety Features:**
+- **Document Count**: Shows how many documents will be deleted
+- **Collection Verification**: Confirms collection exists before deletion
+- **Error Handling**: Graceful handling of non-existent collections
 - **Progress Tracking**: Shows deletion progress and statistics
-- **Error Handling**: Safe error recovery and logging
 
 **Example Usage:**
 ```bash
 # Clean slate before uploading new season data
-node delete_firestore_collection.js season_stats
-# Type "DELETE" when prompted
-# Then upload new data
-node upload_nfl_data_to_firebase.js
+node delete_mongodb_collection.js season_stats
+node upload_nfl_data_to_mongodb.js season
 ```
 
 ## File Structure
@@ -215,41 +214,43 @@ node upload_nfl_data_to_firebase.js
 ```
 ├── fetch_season_data.R              # Season statistics fetcher
 ├── fetch_weekly_data.R              # Weekly statistics fetcher
-├── fetch_roster_data.R              # Roster data fetcher
-├── upload_nfl_data_to_firebase.js   # Firebase upload script
-├── delete_firestore_collection.js   # Firebase collection deletion script
-├── data_output/                     # Output directory
-│   ├── season_stats/                # Season statistics files
+├── fetch_roster_data.R               # Roster data fetcher
+├── upload_nfl_data_to_mongodb.js     # MongoDB upload script
+├── delete_mongodb_collection.js      # MongoDB collection deletion script
+├── data_output/                      # Output directory
+│   ├── season_stats/                 # Season statistics files
 │   │   ├── season_data_2024_REG.csv
 │   │   ├── season_data_2023_REG.csv
 │   │   └── season_data_2022_REG.csv
-│   ├── weekly_stats/                # Weekly statistics files
+│   ├── weekly_stats/                 # Weekly statistics files
 │   │   ├── weekly_data_2024_REG.csv
 │   │   ├── weekly_data_2023_REG.csv
 │   │   └── weekly_data_2022_REG.csv
-│   └── roster_data/                 # Roster data files
+│   └── roster_data/                  # Roster data files
 │       ├── roster_data_2024.csv
 │       ├── roster_data_2023.csv
 │       └── roster_data_2022.csv
-├── firebase-env-example.txt         # Firebase environment template
-├── GITHUB_ACTIONS_SETUP.md          # GitHub Actions setup guide
-├── package.json                     # Node.js dependencies
-└── README.md                        # This file
+├── env-example.txt                   # Environment variables template
+├── GITHUB_ACTIONS_SETUP.md           # GitHub Actions setup guide
+├── package.json                      # Node.js dependencies
+└── README.md                         # This file
 ```
 
 ## Database Schema
 
-### Collection 1: `/season_stats/{year_playerId}`
+### MongoDB Atlas Collections
+
+#### Collection 1: `season_stats`
 Document ID format: `"2024_00-0036389"`
 
 Contains player statistics aggregated by season with all stat columns.
 
-### Collection 2: `/weekly_stats/{year_week_playerId}`
+#### Collection 2: `weekly_stats`
 Document ID format: `"2024_05_00-0036389"`
 
 Contains player statistics for individual weeks with all stat columns.
 
-### Collection 3: `/roster_data/{year_playerId}`
+#### Collection 3: `roster_data`
 Document ID format: `"2024_00-0036389"`
 
 Contains player roster information including position, team, jersey number, etc.
@@ -316,30 +317,29 @@ Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
 Rscript fetch_roster_data.R --seasons=2024
 ```
 
-### Example 4: Complete Pipeline (R + Firebase)
+### Example 4: Complete Pipeline (R + MongoDB)
 ```bash
 # Step 1: Fetch data with R (creates multiple files for each data type)
 Rscript fetch_season_data.R --seasons=2020:2024
 Rscript fetch_weekly_data.R --seasons=2020:2024
 Rscript fetch_roster_data.R --seasons=2020:2024
 
-# Step 2: Upload all files to Firebase
-node upload_nfl_data_to_firebase.js season
-node upload_nfl_data_to_firebase.js weekly
-node upload_nfl_data_to_firebase.js roster
+# Step 2: Upload all files to MongoDB
+node upload_nfl_data_to_mongodb.js season
+node upload_nfl_data_to_mongodb.js weekly
+node upload_nfl_data_to_mongodb.js roster
 ```
 
-### Example 5: Clean Slate Firebase Workflow
+### Example 5: Clean Slate MongoDB Workflow
 ```bash
-# Step 1: Delete existing Firebase collection (with confirmation)
-node delete_firestore_collection.js season_stats
-# Type "DELETE" when prompted
+# Step 1: Delete existing collection
+node delete_mongodb_collection.js season_stats
 
 # Step 2: Fetch fresh data
 Rscript fetch_season_data.R --seasons=2024
 
-# Step 3: Upload to Firebase
-node upload_nfl_data_to_firebase.js season
+# Step 3: Upload to MongoDB
+node upload_nfl_data_to_mongodb.js season
 ```
 
 ### Example 6: File Management Workflow
@@ -348,8 +348,8 @@ node upload_nfl_data_to_firebase.js season
 Rscript fetch_season_data.R --seasons=2024
 
 # Step 2: Immediately process the files (before next run deletes them)
-# Option A: Upload to Firebase
-node upload_nfl_data_to_firebase.js season
+# Option A: Upload to MongoDB
+node upload_nfl_data_to_mongodb.js season
 
 # Option B: Copy to backup
 copy data_output\season_stats\*.csv C:\backup\nfl_data\
@@ -385,20 +385,19 @@ npm run fetch-season
 npm run fetch-weekly  
 npm run fetch-roster
 
-# Node.js Scripts
-npm run upload-season
-npm run upload-weekly
-npm run upload-roster
-npm run delete-collection season_stats
+# MongoDB Upload Scripts
+npm run upload-mongo-season
+npm run upload-mongo-weekly
+npm run upload-mongo-roster
 ```
 
-### Firebase Upload Configuration
+### Database Upload Configuration
 
 Configure upload behavior in `.env`:
 
 ```bash
-# Batch delay in seconds (default: 2)
-BATCH_DELAY_SECONDS=2
+# Batch delay in seconds (MongoDB default: 1)
+BATCH_DELAY_SECONDS=1
 
 # Maximum retry attempts (default: 3)
 MAX_RETRIES=3
@@ -445,19 +444,20 @@ The upload script provides detailed progress information:
    - **Solution**: Make sure you've installed the required packages in R/RStudio first
    - **Check**: Ensure `nflfastR` and `dplyr` packages are installed
 
-4. **Firebase Authentication** (if using Firebase): Ensure `.env` file exists with correct credentials
+4. **MongoDB Authentication**: Ensure `.env` file exists with correct credentials
 5. **Memory Issues**: R scripts load large datasets into memory
-6. **Rate Limiting** (if using Firebase): Adjust `BATCH_DELAY_SECONDS` if you hit Firebase rate limits
+6. **Rate Limiting**: Adjust `BATCH_DELAY_SECONDS` if you hit MongoDB rate limits
 7. **Disk Space**: Ensure sufficient space for CSV files
 
 ### Resume Failed Uploads
 
-If the upload fails, simply run the Node.js script again with the same data type:
+If the upload fails, simply run the Node.js script again with the same data type. **The script always starts fresh** (no checkpoint system):
+
 ```bash
-node upload_nfl_data_to_firebase.js season
+node upload_nfl_data_to_mongodb.js season
 ```
 
-The script will resume from where it left off and attempt to upload the remaining data files.
+The script will process all records from start to finish, and MongoDB's `upsert` operations will handle any existing data properly.
 
 ### Check Error Logs
 
@@ -477,11 +477,12 @@ All errors are displayed in the console during execution. Review the console out
 - **Smaller file sizes**: ~680KB per year vs 18MB for all years
 - **Better error recovery**: If one year fails, others still succeed
 
-### Firebase Upload Performance
+### MongoDB Upload Performance
 - **Multiple files**: Node.js automatically combines all year files
 - **Batch processing**: Efficient uploads with progress tracking
 - **Memory efficient**: Processes smaller files individually
-- **Upload time**: ~30-60 minutes for 5 years of data
+- **Upload time**: ~10-20 minutes for 5 years of data
+- **No rate limits**: Unlimited operations on free tier
 
 ## Data Volume Estimates
 

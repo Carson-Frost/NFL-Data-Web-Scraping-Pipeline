@@ -1,24 +1,22 @@
-// upload_nfl_data_to_firebase.js
-// This script uploads NFL data files to Firestore
-// with batch processing, checkpoint recovery, and error handling
+// upload_nfl_data_to_mongodb.js
+// This script uploads NFL data files to MongoDB Atlas
+// with batch processing and error handling
 //
-// Usage: node upload_nfl_data_to_firebase.js <data_type>
+// Usage: node upload_nfl_data_to_mongodb.js <data_type>
 // Data types: season, weekly, roster
-// Example: node upload_nfl_data_to_firebase.js season
+// Example: node upload_nfl_data_to_mongodb.js season
 
 require('dotenv').config();
-const admin = require('firebase-admin');
+const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 
 // Configuration
-const BATCH_SIZE = 50; // Smaller batch size to avoid timeout issues
-const BATCH_DELAY = parseInt(process.env.BATCH_DELAY_SECONDS || '2') * 1000; // 2 second delay
+const BATCH_SIZE = 100; // MongoDB can handle larger batches than Firestore
+const BATCH_DELAY = parseInt(process.env.BATCH_DELAY_SECONDS || '1') * 1000; // 1 second delay
 const MAX_RETRIES = parseInt(process.env.MAX_RETRIES || '3'); // Maximum retry attempts for failed batches
-const RETRY_DELAY = 5000; // Delay before retrying failed batches (5 seconds)
-const CHECKPOINT_FILE = './upload_checkpoint.json';
-const ERROR_LOG_FILE = './upload_errors.json';
+const RETRY_DELAY = 3000; // Delay before retrying failed batches (3 seconds)
 
 // Data directories
 const DATA_DIRS = {
@@ -37,7 +35,7 @@ function parseArguments() {
   if (args.length === 0) {
     console.log('❌ Error: No data type specified');
     console.log('');
-    console.log('Usage: node upload_nfl_data_to_firebase.js <data_type>');
+    console.log('Usage: node upload_nfl_data_to_mongodb.js <data_type>');
     console.log('');
     console.log('Valid data types:');
     console.log('  season  - Upload season statistics data');
@@ -45,9 +43,9 @@ function parseArguments() {
     console.log('  roster  - Upload roster data');
     console.log('');
     console.log('Examples:');
-    console.log('  node upload_nfl_data_to_firebase.js season');
-    console.log('  node upload_nfl_data_to_firebase.js weekly');
-    console.log('  node upload_nfl_data_to_firebase.js roster');
+    console.log('  node upload_nfl_data_to_mongodb.js season');
+    console.log('  node upload_nfl_data_to_mongodb.js weekly');
+    console.log('  node upload_nfl_data_to_mongodb.js roster');
     process.exit(1);
   }
   
@@ -64,38 +62,29 @@ function parseArguments() {
 }
 
 // Check if environment variables are loaded
-if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY || !process.env.FIREBASE_CLIENT_EMAIL) {
-    console.error('❌ Missing Firebase environment variables!');
-    console.error('Please ensure .env file exists with FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, and FIREBASE_CLIENT_EMAIL');
+if (!process.env.MONGODB_URI || !process.env.MONGODB_DATABASE) {
+    console.error('❌ Missing MongoDB environment variables!');
+    console.error('Please ensure .env file exists with MONGODB_URI and MONGODB_DATABASE');
     process.exit(1);
 }
 
-// Initialize Firebase Admin
-admin.initializeApp({
-    credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    })
-});
+let client;
+let db;
 
-const db = admin.firestore();
-
-// Configure Firebase for better performance
-db.settings({
-    ignoreUndefinedProperties: true
-});
-
-// Test Firebase connection
-async function testFirebaseConnection() {
+// Initialize MongoDB connection
+async function initializeMongoDB() {
     try {
-        log('Testing Firebase connection...');
-        const testDoc = db.collection('_test').doc('connection_test');
-        await testDoc.set({ test: true, timestamp: new Date() });
-        log('✓ Firebase connection successful');
+        log('Connecting to MongoDB...');
+        client = new MongoClient(process.env.MONGODB_URI);
+        await client.connect();
+        db = client.db(process.env.MONGODB_DATABASE);
+        
+        // Test connection
+        await db.admin().ping();
+        log('✓ MongoDB connection successful');
         return true;
     } catch (error) {
-        log(`✗ Firebase connection failed: ${error.message}`);
+        log(`✗ MongoDB connection failed: ${error.message}`);
         return false;
     }
 }
@@ -121,63 +110,11 @@ async function retryWithBackoff(fn, maxRetries = MAX_RETRIES, baseDelay = RETRY_
                 throw error;
             }
             
-            // Handle specific Firebase quota errors
-            if (error.message.includes('RESOURCE_EXHAUSTED') || error.message.includes('Quota exceeded')) {
-                const delay = baseDelay * Math.pow(3, attempt - 1); // Longer delays for quota issues
-                log(`Quota exceeded on attempt ${attempt}, waiting ${delay}ms before retry...`);
-                await sleep(delay);
-            } else {
-                const delay = baseDelay * Math.pow(2, attempt - 1);
-                log(`Attempt ${attempt} failed, retrying in ${delay}ms: ${error.message}`);
-                await sleep(delay);
-            }
+            const delay = baseDelay * Math.pow(2, attempt - 1);
+            log(`Attempt ${attempt} failed, retrying in ${delay}ms: ${error.message}`);
+            await sleep(delay);
         }
     }
-}
-
-// Read checkpoint file
-function readCheckpoint() {
-    if (fs.existsSync(CHECKPOINT_FILE)) {
-        try {
-            const data = fs.readFileSync(CHECKPOINT_FILE, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            log(`Error reading checkpoint: ${error.message}`);
-            return null;
-        }
-    }
-    return null;
-}
-
-// Write checkpoint file
-function writeCheckpoint(checkpoint) {
-    try {
-        fs.writeFileSync(CHECKPOINT_FILE, JSON.stringify(checkpoint, null, 2));
-    } catch (error) {
-        log(`Error writing checkpoint: ${error.message}`);
-    }
-}
-
-// Log error to error file
-function logError(error, context) {
-    const errorEntry = {
-        timestamp: new Date().toISOString(),
-        error: error.message,
-        context: context
-    };
-    
-    let errors = [];
-    if (fs.existsSync(ERROR_LOG_FILE)) {
-        try {
-            const data = fs.readFileSync(ERROR_LOG_FILE, 'utf8');
-            errors = JSON.parse(data);
-        } catch (e) {
-            // If can't read, start fresh
-        }
-    }
-    
-    errors.push(errorEntry);
-    fs.writeFileSync(ERROR_LOG_FILE, JSON.stringify(errors, null, 2));
 }
 
 // Parse CSV file
@@ -192,7 +129,7 @@ function parseCSV(filePath) {
     });
 }
 
-// Convert CSV row to Firestore document
+// Convert CSV row to MongoDB document
 function convertRowToDocument(row) {
     const doc = {};
     
@@ -244,70 +181,49 @@ function findMostRecentFiles(directory, pattern) {
     return files;
 }
 
-// Find the most recent file in a directory
-function findMostRecentFile(directory, pattern) {
-    if (!fs.existsSync(directory)) {
-        return null;
-    }
-    
-    const files = fs.readdirSync(directory)
-        .filter(file => file.match(pattern))
-        .map(file => ({
-            name: file,
-            path: path.join(directory, file),
-            mtime: fs.statSync(path.join(directory, file)).mtime
-        }))
-        .sort((a, b) => b.mtime - a.mtime);
-    
-    return files.length > 0 ? files[0] : null;
-}
-
 // Process data upload for a specific collection
-async function uploadData(data, collectionName, docIdFunction, checkpoint, dataType) {
+async function uploadData(data, collectionName, docIdFunction, dataType) {
     log(`Starting ${dataType} upload...`);
     
     const totalRecords = data.length;
-    const startIndex = checkpoint?.[dataType]?.lastIndex || 0;
     const totalBatches = Math.ceil(totalRecords / BATCH_SIZE);
-    const startBatch = Math.floor(startIndex / BATCH_SIZE);
     
-    log(`${dataType}: ${totalRecords} records, starting from index ${startIndex}`);
-    log(`Total batches: ${totalBatches}, starting from batch ${startBatch + 1}`);
+    log(`${dataType}: ${totalRecords} records, uploading in ${totalBatches} batches`);
     
     let successCount = 0;
     let errorCount = 0;
     
-    for (let batchIndex = startBatch; batchIndex < totalBatches; batchIndex++) {
+    for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
         const startIdx = batchIndex * BATCH_SIZE;
         const endIdx = Math.min(startIdx + BATCH_SIZE, totalRecords);
         const batch = data.slice(startIdx, endIdx);
         
         try {
             await retryWithBackoff(async () => {
-                const writeBatch = db.batch();
-                
-                for (const row of batch) {
+                // Convert batch to MongoDB documents
+                const documents = batch.map(row => {
                     const docId = docIdFunction(row);
                     const docData = convertRowToDocument(row);
-                    const docRef = db.collection(collectionName).doc(docId);
-                    writeBatch.set(docRef, docData);
-                }
+                    return {
+                        _id: docId,
+                        ...docData
+                    };
+                });
                 
-                await writeBatch.commit();
+                // Use upsert to handle duplicates
+                const collection = db.collection(collectionName);
+                const operations = documents.map(doc => ({
+                    replaceOne: {
+                        filter: { _id: doc._id },
+                        replacement: doc,
+                        upsert: true
+                    }
+                }));
+                
+                await collection.bulkWrite(operations);
             });
             
             successCount += batch.length;
-            
-            // Update checkpoint
-            const newCheckpoint = {
-                ...checkpoint,
-                [dataType]: {
-                    lastIndex: endIdx,
-                    completed: endIdx >= totalRecords
-                },
-                lastUpdate: new Date().toISOString()
-            };
-            writeCheckpoint(newCheckpoint);
             
             const progress = ((batchIndex + 1) / totalBatches * 100).toFixed(1);
             log(`${dataType}: Batch ${batchIndex + 1}/${totalBatches} complete (${progress}%) - ${successCount} records uploaded`);
@@ -319,7 +235,6 @@ async function uploadData(data, collectionName, docIdFunction, checkpoint, dataT
             
         } catch (error) {
             errorCount += batch.length;
-            logError(error, `${dataType} batch ${batchIndex + 1} (records ${startIdx}-${endIdx})`);
             log(`Error in ${dataType} batch ${batchIndex + 1}: ${error.message}`);
             
             // Continue with next batch instead of failing completely
@@ -344,13 +259,13 @@ async function verifyUpload(dataType) {
         };
         
         const collectionName = collectionMap[dataType];
-        const snapshot = await db.collection(collectionName).get();
+        const count = await db.collection(collectionName).countDocuments();
         
         log(`Verification results:`);
-        log(`  - ${dataType} documents: ${snapshot.size}`);
+        log(`  - ${dataType} documents: ${count}`);
         
         return {
-            [dataType]: snapshot.size
+            [dataType]: count
         };
         
     } catch (error) {
@@ -362,47 +277,36 @@ async function verifyUpload(dataType) {
 // Main upload function
 async function uploadAllData(selectedDataType) {
     const startTime = Date.now();
-    log(`🚀 Starting NFL Data Firebase upload for ${selectedDataType}...`);
+    log(`🚀 Starting NFL Data MongoDB upload for ${selectedDataType}...`);
     log(`Configuration: Batch size=${BATCH_SIZE}, Delay=${BATCH_DELAY/1000}s, Max retries=${MAX_RETRIES}`);
     
-    // Test Firebase connection first
-    const connectionOk = await testFirebaseConnection();
+    // Initialize MongoDB connection first
+    const connectionOk = await initializeMongoDB();
     if (!connectionOk) {
-        log('❌ Cannot proceed without Firebase connection');
+        log('❌ Cannot proceed without MongoDB connection');
         process.exit(1);
     }
     
     try {
-        // Read checkpoint
-        const checkpoint = readCheckpoint();
-        if (checkpoint) {
-            log(`Resuming from checkpoint: ${checkpoint.lastUpdate}`);
-        } else {
-            log('No checkpoint found, starting fresh upload');
-        }
-        
         // Map data type to directory and collection info
         const dataTypeMap = {
             'season': {
                 dir: DATA_DIRS.season_stats,
                 pattern: /season_data_.*\.csv$/,
                 collection: 'season_stats',
-                docIdFunction: createSeasonDocId,
-                checkpointKey: 'season_stats'
+                docIdFunction: createSeasonDocId
             },
             'weekly': {
                 dir: DATA_DIRS.weekly_stats,
                 pattern: /weekly_data_.*\.csv$/,
                 collection: 'weekly_stats',
-                docIdFunction: createWeeklyDocId,
-                checkpointKey: 'weekly_stats'
+                docIdFunction: createWeeklyDocId
             },
             'roster': {
                 dir: DATA_DIRS.roster_data,
                 pattern: /roster_data_.*\.csv$/,
                 collection: 'roster_data',
-                docIdFunction: createRosterDocId,
-                checkpointKey: 'roster_data'
+                docIdFunction: createRosterDocId
             }
         };
         
@@ -434,36 +338,15 @@ async function uploadAllData(selectedDataType) {
         log(`Parsed ${allData.length} total ${selectedDataType} records from ${files.length} files`);
         
         // Upload data
-        const results = {};
-        
-        // Check if already complete
-        if (checkpoint?.[dataTypeInfo.checkpointKey]?.completed) {
-            log(`${selectedDataType} data already complete, skipping...`);
-            results[selectedDataType] = { successCount: 0, errorCount: 0 };
-        } else {
-            results[selectedDataType] = await uploadData(
-                allData, 
-                dataTypeInfo.collection, 
-                dataTypeInfo.docIdFunction, 
-                checkpoint, 
-                dataTypeInfo.checkpointKey
-            );
-        }
+        const result = await uploadData(
+            allData, 
+            dataTypeInfo.collection, 
+            dataTypeInfo.docIdFunction, 
+            selectedDataType
+        );
         
         // Verify upload
         const verification = await verifyUpload(selectedDataType);
-        
-        // Clean up checkpoint file if upload is complete
-        if (checkpoint?.[dataTypeInfo.checkpointKey]?.completed || results[selectedDataType].successCount > 0) {
-            const allComplete = Object.keys(dataTypeMap).every(type => 
-                checkpoint?.[dataTypeMap[type].checkpointKey]?.completed
-            );
-            
-            if (allComplete && fs.existsSync(CHECKPOINT_FILE)) {
-                fs.unlinkSync(CHECKPOINT_FILE);
-                log('Checkpoint file deleted (all uploads complete)');
-            }
-        }
         
         // Final summary
         const endTime = Date.now();
@@ -471,8 +354,6 @@ async function uploadAllData(selectedDataType) {
         
         log('=== UPLOAD COMPLETE ===');
         log(`Total time: ${duration} seconds`);
-        
-        const result = results[selectedDataType];
         log(`${selectedDataType}: ${result.successCount} uploaded, ${result.errorCount} errors`);
         
         if (verification) {
@@ -480,15 +361,20 @@ async function uploadAllData(selectedDataType) {
         }
         
         if (result.errorCount > 0) {
-            log(`⚠️  ${result.errorCount} errors occurred. Check ${ERROR_LOG_FILE} for details.`);
+            log(`⚠️  ${result.errorCount} errors occurred during upload`);
         } else {
             log('✅ Upload completed successfully with no errors!');
         }
         
     } catch (error) {
         log(`❌ Fatal error: ${error.message}`);
-        logError(error, 'Main upload function');
         process.exit(1);
+    } finally {
+        // Close MongoDB connection
+        if (client) {
+            await client.close();
+            log('MongoDB connection closed');
+        }
     }
 }
 
@@ -498,7 +384,7 @@ const selectedDataType = parseArguments();
 // Run the upload
 uploadAllData(selectedDataType)
     .then(() => {
-        log('🎉 Firebase upload process completed!');
+        log('🎉 MongoDB upload process completed!');
         process.exit(0);
     })
     .catch((error) => {

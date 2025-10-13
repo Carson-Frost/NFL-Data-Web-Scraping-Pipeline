@@ -2,12 +2,11 @@
   "name": "nfl-player-stats-pipeline",
   "version": "1.0.0",
   "description": "NFL player statistics data pipeline using R and Node.js",
-  "main": "upload_nfl_data_to_firebase.js",
+  "main": "upload_nfl_data_to_mongodb.js",
   "scripts": {
-    "upload-season": "node upload_nfl_data_to_firebase.js season",
-    "upload-weekly": "node upload_nfl_data_to_firebase.js weekly",
-    "upload-roster": "node upload_nfl_data_to_firebase.js roster",
-    "delete-collection": "node delete_firestore_collection.js",
+    "upload-mongo-season": "node upload_nfl_data_to_mongodb.js season",
+    "upload-mongo-weekly": "node upload_nfl_data_to_mongodb.js weekly",
+    "upload-mongo-roster": "node upload_nfl_data_to_mongodb.js roster",
     "fetch-season": "Rscript fetch_season_data.R",
     "fetch-weekly": "Rscript fetch_weekly_data.R",
     "fetch-roster": "Rscript fetch_roster_data.R"
@@ -15,7 +14,7 @@
   "dependencies": {
     "csv-parser": "^3.0.0",
     "dotenv": "^17.2.3",
-    "firebase-admin": "^12.0.0"
+    "mongodb": "^6.20.0"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -23,8 +22,7 @@
   "keywords": [
     "nfl",
     "statistics",
-    "firebase",
-    "firestore",
+    "mongodb",
     "data-pipeline"
   ],
   "author": "",
