@@ -33,7 +33,7 @@ function parseArguments() {
   const args = process.argv.slice(2);
   
   if (args.length === 0) {
-    console.log('❌ Error: No data type specified');
+    console.log('Error: No data type specified');
     console.log('');
     console.log('Usage: node upload_nfl_data_to_mongodb.js <data_type>');
     console.log('');
@@ -52,7 +52,7 @@ function parseArguments() {
   const dataType = args[0].toLowerCase();
   
   if (!VALID_DATA_TYPES.includes(dataType)) {
-    console.log(`❌ Error: Invalid data type "${dataType}"`);
+    console.log(`Error: Invalid data type "${dataType}"`);
     console.log('');
     console.log('Valid data types are: ' + VALID_DATA_TYPES.join(', '));
     process.exit(1);
@@ -63,7 +63,7 @@ function parseArguments() {
 
 // Check if environment variables are loaded
 if (!process.env.MONGODB_URI || !process.env.MONGODB_DATABASE) {
-    console.error('❌ Missing MongoDB environment variables!');
+    console.error('Missing MongoDB environment variables!');
     console.error('Please ensure .env file exists with MONGODB_URI and MONGODB_DATABASE');
     process.exit(1);
 }
@@ -81,10 +81,10 @@ async function initializeMongoDB() {
         
         // Test connection
         await db.admin().ping();
-        log('✓ MongoDB connection successful');
+        log('MongoDB connection successful');
         return true;
     } catch (error) {
-        log(`✗ MongoDB connection failed: ${error.message}`);
+        log(`MongoDB connection failed: ${error.message}`);
         return false;
     }
 }
@@ -277,13 +277,13 @@ async function verifyUpload(dataType) {
 // Main upload function
 async function uploadAllData(selectedDataType) {
     const startTime = Date.now();
-    log(`🚀 Starting NFL Data MongoDB upload for ${selectedDataType}...`);
+    log(`Starting NFL Data MongoDB upload for ${selectedDataType}...`);
     log(`Configuration: Batch size=${BATCH_SIZE}, Delay=${BATCH_DELAY/1000}s, Max retries=${MAX_RETRIES}`);
     
     // Initialize MongoDB connection first
     const connectionOk = await initializeMongoDB();
     if (!connectionOk) {
-        log('❌ Cannot proceed without MongoDB connection');
+        log('Cannot proceed without MongoDB connection');
         process.exit(1);
     }
     
@@ -316,7 +316,7 @@ async function uploadAllData(selectedDataType) {
         const files = findMostRecentFiles(dataTypeInfo.dir, dataTypeInfo.pattern);
         
         if (files.length === 0) {
-            log(`❌ No ${selectedDataType} data files found to upload`);
+            log(`No ${selectedDataType} data files found to upload`);
             log(`Make sure you have run the R script to generate ${selectedDataType} data files`);
             log(`Expected files in: ${dataTypeInfo.dir}`);
             process.exit(1);
@@ -361,13 +361,13 @@ async function uploadAllData(selectedDataType) {
         }
         
         if (result.errorCount > 0) {
-            log(`⚠️  ${result.errorCount} errors occurred during upload`);
+            log(`${result.errorCount} errors occurred during upload`);
         } else {
-            log('✅ Upload completed successfully with no errors!');
+            log('Upload completed successfully with no errors!');
         }
         
     } catch (error) {
-        log(`❌ Fatal error: ${error.message}`);
+        log(`Fatal error: ${error.message}`);
         process.exit(1);
     } finally {
         // Close MongoDB connection
@@ -384,10 +384,10 @@ const selectedDataType = parseArguments();
 // Run the upload
 uploadAllData(selectedDataType)
     .then(() => {
-        log('🎉 MongoDB upload process completed!');
+        log('MongoDB upload process completed!');
         process.exit(0);
     })
     .catch((error) => {
-        log(`❌ Fatal error: ${error.message}`);
+        log(`Fatal error: ${error.message}`);
         process.exit(1);
     });
