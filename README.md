@@ -16,18 +16,6 @@ This pipeline consists of separate R scripts for data fetching and Node.js scrip
 4. **`upload_nfl_data_to_mongodb.js`** - Uploads data to MongoDB Atlas
 5. **`delete_mongodb_collection.js`** - Deletes MongoDB collections
 
-## Features
-
-- **Modular Design**: Run only the data types you need
-- **Automatic File Management**: Old files are automatically removed to prevent project bloat
-- **Descriptive File Names**: Files are named based on seasons and data type
-- **Comprehensive Data**: All player statistics from 1999 to present are possible with nflfastr
-- **MongoDB Atlas Integration**: Upload to MongoDB Atlas for analytics
-- **Progress Tracking**: Real-time progress updates during data fetching and uploads
-- **Optimized Performance**: Separate files per year for faster processing
-- **Error Handling**: Comprehensive error recovery and retry logic
-- **Clean Slate Operations**: Delete collections before uploading new data
-
 ## File Management Strategy
 
 ### Automatic Cleanup
@@ -358,70 +346,6 @@ copy data_output\season_stats\*.csv C:\backup\nfl_data\
 python my_analysis.py data_output/season_stats/
 ```
 
-## Configuration
-
-### Environment Variables
-
-You can override script parameters using environment variables in **PowerShell**:
-
-```powershell
-# Set seasons
-$env:SEASONS="2020:2024"
-
-# Set season type  
-$env:SEASON_TYPE="REG+POST"
-
-# Run script
-Rscript fetch_season_data.R
-```
-
-### NPM Scripts
-
-You can use npm scripts for convenience:
-
-```bash
-# R Scripts
-npm run fetch-season
-npm run fetch-weekly  
-npm run fetch-roster
-
-# MongoDB Upload Scripts
-npm run upload-mongo-season
-npm run upload-mongo-weekly
-npm run upload-mongo-roster
-```
-
-### Database Upload Configuration
-
-Configure upload behavior in `.env`:
-
-```bash
-# Batch delay in seconds (MongoDB default: 1)
-BATCH_DELAY_SECONDS=1
-
-# Maximum retry attempts (default: 3)
-MAX_RETRIES=3
-```
-
-## Error Handling
-
-The pipeline includes comprehensive error handling:
-
-- **Automatic Cleanup**: Old files are removed before new fetches
-- **Batch Error Handling**: Individual batch failures don't stop the entire process
-- **Data Validation**: Verifies data integrity before and after upload
-- **Console Logging**: All errors are logged to the console during execution
-
-## Monitoring Progress
-
-The upload script provides detailed progress information:
-
-- Current batch number and total batches
-- Percentage complete
-- Records uploaded so far
-- Error counts and details
-- File sizes and processing times
-
 ## Troubleshooting
 
 ### Common Issues
@@ -446,22 +370,8 @@ The upload script provides detailed progress information:
 
 4. **MongoDB Authentication**: Ensure `.env` file exists with correct credentials
 5. **Memory Issues**: R scripts load large datasets into memory
-6. **Rate Limiting**: Adjust `BATCH_DELAY_SECONDS` if you hit MongoDB rate limits
+6. **Rate Limiting**: Adjust `BATCH_DELAY_SECONDS` if you hit rate limits from database system
 7. **Disk Space**: Ensure sufficient space for CSV files
-
-### Resume Failed Uploads
-
-If the upload fails, simply run the Node.js script again with the same data type. **The script always starts fresh** (no checkpoint system):
-
-```bash
-node upload_nfl_data_to_mongodb.js season
-```
-
-The script will process all records from start to finish, and MongoDB's `upsert` operations will handle any existing data properly.
-
-### Check Error Logs
-
-All errors are displayed in the console during execution. Review the console output for detailed error information if uploads fail.
 
 ## Performance
 
@@ -482,28 +392,3 @@ All errors are displayed in the console during execution. Review the console out
 - **Batch processing**: Efficient uploads with progress tracking
 - **Memory efficient**: Processes smaller files individually
 - **Upload time**: ~10-20 minutes for 5 years of data
-- **No rate limits**: Unlimited operations on free tier
-
-## Data Volume Estimates
-
-### Per Year (Season Data):
-- **Season Stats**: ~1,800 players × 1 year = ~1,800 records
-- **File Size**: ~680KB per year
-- **Processing Time**: ~30-60 seconds per year
-
-### Per Season (Weekly/Roster Data):
-- **Weekly Stats**: ~2,000 players × 17 weeks = ~34,000 records  
-- **Roster Data**: ~2,000 players × 1 season = ~2,000 records
-
-### Historical Data (1999-2025):
-- **Season Stats**: ~49,000 records across 27 separate files
-- **Weekly Stats**: ~850,000 records in single files
-- **Roster Data**: ~50,000 records in single files
-
-## Future Enhancements
-
-- Incremental updates for new seasons
-- Data validation and quality checks
-- Performance optimizations for larger datasets
-- Advanced error recovery and retry logic
-- Command-line interface for easier parameter management
