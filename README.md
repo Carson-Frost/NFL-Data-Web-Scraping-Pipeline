@@ -186,7 +186,7 @@ The upload script will automatically:
 
 ### Delete MongoDB Collections
 
-**⚠️ WARNING: This permanently deletes all documents in a collection!**
+**WARNING: This permanently deletes all documents in a collection!**
 
 ```bash
 # Delete a specific collection
