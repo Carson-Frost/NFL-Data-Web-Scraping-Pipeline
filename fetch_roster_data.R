@@ -70,7 +70,7 @@ if (length(old_files) > 0) {
     log_message(paste("  Removing:", basename(file)))
     file.remove(file)
   }
-  log_message(paste("✓ Removed", length(old_files), "old files"))
+  log_message(paste("Removed", length(old_files), "old files"))
 } else {
   log_message("No old files to clean up")
 }
@@ -118,11 +118,11 @@ for (i in 1:total_seasons) {
       files_created <- files_created + 1
       total_records <- total_records + nrow(roster_clean)
     } else {
-      log_message(paste("⚠ Season", season, "- No data found"))
+      log_message(paste("Season", season, "- No data found"))
     }
     
   }, error = function(e) {
-    log_message(paste("❌ Error processing season", season, ":", e$message))
+    log_message(paste("Error processing season", season, ":", e$message))
   })
   
   # Progress update
