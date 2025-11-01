@@ -22,7 +22,7 @@ function parseArguments() {
   const args = process.argv.slice(2);
   
   if (args.length === 0) {
-    console.log('❌ Error: No collection specified');
+    console.log('Error: No collection specified');
     console.log('');
     console.log('Usage: node delete_mongodb_collection.js <collection_name>');
     console.log('');
@@ -41,7 +41,7 @@ function parseArguments() {
   const collectionName = args[0].toLowerCase();
   
   if (!VALID_COLLECTIONS.includes(collectionName)) {
-    console.log(`❌ Error: Invalid collection name "${collectionName}"`);
+    console.log(`Error: Invalid collection name "${collectionName}"`);
     console.log('');
     console.log('Valid collection names are: ' + VALID_COLLECTIONS.join(', '));
     process.exit(1);
@@ -52,7 +52,7 @@ function parseArguments() {
 
 // Check if environment variables are loaded
 if (!process.env.MONGODB_URI || !process.env.MONGODB_DATABASE) {
-    console.error('❌ Missing MongoDB environment variables!');
+    console.error('Missing MongoDB environment variables!');
     console.error('Please ensure .env file exists with MONGODB_URI and MONGODB_DATABASE');
     process.exit(1);
 }
@@ -70,10 +70,10 @@ async function initializeMongoDB() {
         
         // Test connection
         await db.admin().ping();
-        log('✓ MongoDB connection successful');
+        log('MongoDB connection successful');
         return true;
     } catch (error) {
-        log(`✗ MongoDB connection failed: ${error.message}`);
+        log(`MongoDB connection failed: ${error.message}`);
         return false;
     }
 }
@@ -111,7 +111,7 @@ async function deleteCollection(collectionName) {
         
         // Drop the collection
         await db.collection(collectionName).drop();
-        log(`✓ Successfully deleted collection: ${collectionName}`);
+        log(`Successfully deleted collection: ${collectionName}`);
         
         return { success: true, deletedCount: count };
         
@@ -121,7 +121,7 @@ async function deleteCollection(collectionName) {
             log(`Collection ${collectionName} does not exist`);
             return { success: true, deletedCount: 0 };
         } else {
-            log(`✗ Error deleting collection ${collectionName}: ${error.message}`);
+            log(`Error deleting collection ${collectionName}: ${error.message}`);
             return { success: false, error: error.message };
         }
     }
@@ -144,12 +144,12 @@ async function deleteAllCollections() {
 // Main deletion function
 async function deleteMongoDBData(selectedCollection) {
     const startTime = Date.now();
-    log(`🗑️  Starting MongoDB collection deletion for: ${selectedCollection}`);
+    log(`Starting MongoDB collection deletion for: ${selectedCollection}`);
     
     // Initialize MongoDB connection first
     const connectionOk = await initializeMongoDB();
     if (!connectionOk) {
-        log('❌ Cannot proceed without MongoDB connection');
+        log('Cannot proceed without MongoDB connection');
         process.exit(1);
     }
     
@@ -180,20 +180,20 @@ async function deleteMongoDBData(selectedCollection) {
                 log(`✓ ${collection}: ${result.deletedCount} documents deleted`);
             } else {
                 errorCount++;
-                log(`✗ ${collection}: Error - ${result.error}`);
+                log(`${collection}: Error - ${result.error}`);
             }
         }
         
         log(`Summary: ${successCount} collections processed, ${totalDeleted} total documents deleted`);
         
         if (errorCount > 0) {
-            log(`⚠️  ${errorCount} errors occurred during deletion`);
+            log(`${errorCount} errors occurred during deletion`);
         } else {
-            log('✅ All deletions completed successfully!');
+            log('All deletions completed successfully!');
         }
         
     } catch (error) {
-        log(`❌ Fatal error: ${error.message}`);
+        log(`Fatal error: ${error.message}`);
         process.exit(1);
     } finally {
         // Close MongoDB connection
@@ -210,10 +210,10 @@ const selectedCollection = parseArguments();
 // Run the deletion
 deleteMongoDBData(selectedCollection)
     .then(() => {
-        log('🎉 MongoDB deletion process completed!');
+        log('MongoDB deletion process completed!');
         process.exit(0);
     })
     .catch((error) => {
-        log(`❌ Fatal error: ${error.message}`);
+        log(`Fatal error: ${error.message}`);
         process.exit(1);
     });
