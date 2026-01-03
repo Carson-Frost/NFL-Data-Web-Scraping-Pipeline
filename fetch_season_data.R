@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
 args <- commandArgs(trailingOnly = TRUE)
 
 # Default values
-SEASONS_STR <- "2024"
+SEASONS_STR <- "2025"
 SEASON_TYPE <- "REG"
 OUTPUT_DIR <- "data_output/season_stats"
 
@@ -33,19 +33,19 @@ for (arg in args) {
 SEASONS_STR <- Sys.getenv("SEASONS", SEASONS_STR)
 SEASON_TYPE <- Sys.getenv("SEASON_TYPE", SEASON_TYPE)
 
-# Parse seasons string (e.g., "1999:2024" or "2024")
+# Parse seasons string (e.g., "1999:2025" or "2025")
 if (grepl(":", SEASONS_STR)) {
   parts <- strsplit(SEASONS_STR, ":")[[1]]
   if (length(parts) == 2 && !is.na(as.numeric(parts[1])) && !is.na(as.numeric(parts[2]))) {
     SEASONS <- as.numeric(parts[1]):as.numeric(parts[2])
   } else {
-    stop("Invalid seasons format. Use format like '1999:2024'")
+    stop("Invalid seasons format. Use format like '1999:2025'")
   }
 } else {
   if (!is.na(as.numeric(SEASONS_STR))) {
     SEASONS <- as.numeric(SEASONS_STR)
   } else {
-    stop("Invalid seasons format. Use format like '1999:2024' or single year like '2024'")
+    stop("Invalid seasons format. Use format like '1999:2025' or single year like '2025'")
   }
 }
 

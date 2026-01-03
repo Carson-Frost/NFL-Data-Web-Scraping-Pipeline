@@ -124,7 +124,7 @@ jobs:
         echo "📊 Fetching seasons: ${{ github.event.inputs.seasons || '2020:2024' }}"
         echo "📈 This will create large CSV files (5GB+)"
         
-        Rscript nfl_player_stats_fetch.R
+        Rscript fetch_weekly_data.R
       env:
         SEASONS: ${{ github.event.inputs.seasons || '2020:2024' }}
         SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}

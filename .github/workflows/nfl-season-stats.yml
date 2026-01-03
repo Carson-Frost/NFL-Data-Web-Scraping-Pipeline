@@ -110,7 +110,7 @@ jobs:
         cat('✓ All packages verified\n')
         "
         
-        Rscript nfl_player_stats_fetch.R
+        Rscript fetch_season_data.R
       env:
         SEASONS: ${{ github.event.inputs.seasons || '2020:2024' }}
         SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}
