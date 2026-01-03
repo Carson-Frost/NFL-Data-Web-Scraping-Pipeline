@@ -36,7 +36,7 @@ This pipeline consists of separate R scripts for data fetching and Node.js scrip
 **Example workflow**:
 ```bash
 # Run script (deletes old files, creates new ones)
-Rscript fetch_season_data.R --seasons=2024
+Rscript fetch_season_data.R --seasons=2025
 
 # Immediately after, do something with the files:
 # Option 1: Upload to MongoDB (recommended)
@@ -69,21 +69,21 @@ install.packages(c("nflfastR", "dplyr"))
 
 #### Fetch Season Statistics
 ```bash
-# Fetch current season (2024)
+# Fetch current season (2025)
 Rscript fetch_season_data.R
 
 # Fetch specific season
-Rscript fetch_season_data.R --seasons=2023
+Rscript fetch_season_data.R --seasons=2024
 
 # Fetch range of seasons
-Rscript fetch_season_data.R --seasons=2020:2024
+Rscript fetch_season_data.R --seasons=2022:2025
 
 # Fetch with different season type
-Rscript fetch_season_data.R --seasons=2024 --season-type=REG+POST
+Rscript fetch_season_data.R --seasons=2025 --season-type=REG+POST
 ```
 
 **Parameters:**
-- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2024)
+- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2025)
 - `--season-type=TYPE` - Season type: REG, POST, or REG+POST (default: REG)
 
 #### Fetch Weekly Statistics
@@ -92,17 +92,17 @@ Rscript fetch_season_data.R --seasons=2024 --season-type=REG+POST
 Rscript fetch_weekly_data.R
 
 # Fetch specific season weekly stats
-Rscript fetch_weekly_data.R --seasons=2023
+Rscript fetch_weekly_data.R --seasons=2024
 
 # Fetch range of seasons weekly stats
-Rscript fetch_weekly_data.R --seasons=2020:2024
+Rscript fetch_weekly_data.R --seasons=2022:2025
 
 # Fetch with different season type
-Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
+Rscript fetch_weekly_data.R --seasons=2025 --season-type=REG+POST
 ```
 
 **Parameters:**
-- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2024)
+- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2025)
 - `--season-type=TYPE` - Season type: REG, POST, or REG+POST (default: REG)
 
 #### Fetch Roster Data
@@ -111,14 +111,14 @@ Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
 Rscript fetch_roster_data.R
 
 # Fetch specific season roster
-Rscript fetch_roster_data.R --seasons=2023
+Rscript fetch_roster_data.R --seasons=2024
 
 # Fetch range of seasons roster
-Rscript fetch_roster_data.R --seasons=2020:2024
+Rscript fetch_roster_data.R --seasons=2022:2025
 ```
 
 **Parameters:**
-- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2024)
+- `--seasons=X` or `--seasons=X:Y` - Season(s) to fetch (default: 2025)
 
 ## Part 2: MongoDB Atlas Database Upload
 
@@ -207,14 +207,17 @@ node upload_data.js season
 ├── delete_collection.js               # MongoDB collection deletion script
 ├── data_output/                      # Output directory
 │   ├── season_stats/                 # Season statistics files
+│   │   ├── season_data_2025_REG.csv
 │   │   ├── season_data_2024_REG.csv
 │   │   ├── season_data_2023_REG.csv
 │   │   └── season_data_2022_REG.csv
 │   ├── weekly_stats/                 # Weekly statistics files
+│   │   ├── weekly_data_2025_REG.csv
 │   │   ├── weekly_data_2024_REG.csv
 │   │   ├── weekly_data_2023_REG.csv
 │   │   └── weekly_data_2022_REG.csv
 │   └── roster_data/                  # Roster data files
+│       ├── roster_data_2025.csv
 │       ├── roster_data_2024.csv
 │       ├── roster_data_2023.csv
 │       └── roster_data_2022.csv
@@ -248,69 +251,69 @@ Contains player roster information including position, team, jersey number, etc.
 Files are automatically named based on the data they contain:
 
 - **Season Data**: `season_data_[YEAR]_[SEASON_TYPE].csv`
-  - Example: `season_data_2024_REG.csv`
-  - Example: `season_data_2020_REG+POST.csv`
+  - Example: `season_data_2025_REG.csv`
+  - Example: `season_data_2022_REG+POST.csv`
   - **Multiple files**: Each year gets its own file for better performance
-  - **Range requests**: `--seasons=2020:2024` creates separate files for 2020, 2021, 2022, 2023, 2024
+  - **Range requests**: `--seasons=2022:2025` creates separate files for 2022, 2023, 2024, 2025
 
 - **Weekly Data**: `weekly_data_[YEAR]_[SEASON_TYPE].csv`
-  - Example: `weekly_data_2024_REG.csv`
-  - Example: `weekly_data_2020_REG+POST.csv`
+  - Example: `weekly_data_2025_REG.csv`
+  - Example: `weekly_data_2022_REG+POST.csv`
   - **Multiple files**: Each year gets its own file for better performance
-  - **Range requests**: `--seasons=2020:2024` creates separate files for 2020, 2021, 2022, 2023, 2024
+  - **Range requests**: `--seasons=2022:2025` creates separate files for 2022, 2023, 2024, 2025
 
 - **Roster Data**: `roster_data_[YEAR].csv`
-  - Example: `roster_data_2024.csv`
-  - Example: `roster_data_2020.csv`
+  - Example: `roster_data_2025.csv`
+  - Example: `roster_data_2022.csv`
   - **Multiple files**: Each year gets its own file for better performance
-  - **Range requests**: `--seasons=2020:2024` creates separate files for 2020, 2021, 2022, 2023, 2024
+  - **Range requests**: `--seasons=2022:2025` creates separate files for 2022, 2023, 2024, 2025
 
 Where:
-- `[YEAR]` is a single year (e.g., `2024`)
-- `[SEASONS]` is either a single year (e.g., `2024`) or a range (e.g., `2020_to_2024`)
+- `[YEAR]` is a single year (e.g., `2025`)
+- `[SEASONS]` is either a single year (e.g., `2025`) or a range (e.g., `2022_to_2025`)
 - `[SEASON_TYPE]` is `REG`, `POST`, or `REG+POST`
 
 ## Examples
 
 ### Example 1: Fetch Current Season Data Only
 ```bash
-# Creates: season_data_2024_REG.csv
+# Creates: season_data_2025_REG.csv
 Rscript fetch_season_data.R
 ```
 
 ### Example 2: Fetch Historical Data (Multiple Files)
 ```bash
-# Creates: season_data_2020_REG.csv, season_data_2021_REG.csv, 
-#          season_data_2022_REG.csv, season_data_2023_REG.csv, season_data_2024_REG.csv
-Rscript fetch_season_data.R --seasons=2020:2024
+# Creates: season_data_2022_REG.csv, season_data_2023_REG.csv,
+#          season_data_2024_REG.csv, season_data_2025_REG.csv
+Rscript fetch_season_data.R --seasons=2022:2025
 
-# Creates: weekly_data_2020_REG.csv, weekly_data_2021_REG.csv,
-#          weekly_data_2022_REG.csv, weekly_data_2023_REG.csv, weekly_data_2024_REG.csv
-Rscript fetch_weekly_data.R --seasons=2020:2024
+# Creates: weekly_data_2022_REG.csv, weekly_data_2023_REG.csv,
+#          weekly_data_2024_REG.csv, weekly_data_2025_REG.csv
+Rscript fetch_weekly_data.R --seasons=2022:2025
 
-# Creates: roster_data_2020.csv, roster_data_2021.csv,
-#          roster_data_2022.csv, roster_data_2023.csv, roster_data_2024.csv
-Rscript fetch_roster_data.R --seasons=2020:2024
+# Creates: roster_data_2022.csv, roster_data_2023.csv,
+#          roster_data_2024.csv, roster_data_2025.csv
+Rscript fetch_roster_data.R --seasons=2022:2025
 ```
 
 ### Example 3: Fetch Playoff Data (Multiple Files)
 ```bash
-# Creates: season_data_2024_REG+POST.csv
-Rscript fetch_season_data.R --seasons=2024 --season-type=REG+POST
+# Creates: season_data_2025_REG+POST.csv
+Rscript fetch_season_data.R --seasons=2025 --season-type=REG+POST
 
-# Creates: weekly_data_2024_REG+POST.csv
-Rscript fetch_weekly_data.R --seasons=2024 --season-type=REG+POST
+# Creates: weekly_data_2025_REG+POST.csv
+Rscript fetch_weekly_data.R --seasons=2025 --season-type=REG+POST
 
-# Creates: roster_data_2024.csv (roster data doesn't have season type)
-Rscript fetch_roster_data.R --seasons=2024
+# Creates: roster_data_2025.csv (roster data doesn't have season type)
+Rscript fetch_roster_data.R --seasons=2025
 ```
 
 ### Example 4: Complete Pipeline (R + MongoDB)
 ```bash
 # Step 1: Fetch data with R (creates multiple files for each data type)
-Rscript fetch_season_data.R --seasons=2020:2024
-Rscript fetch_weekly_data.R --seasons=2020:2024
-Rscript fetch_roster_data.R --seasons=2020:2024
+Rscript fetch_season_data.R --seasons=2022:2025
+Rscript fetch_weekly_data.R --seasons=2022:2025
+Rscript fetch_roster_data.R --seasons=2022:2025
 
 # Step 2: Upload all files to MongoDB
 node upload_data.js season
@@ -324,7 +327,7 @@ node upload_data.js roster
 node delete_collection.js season_stats
 
 # Step 2: Fetch fresh data
-Rscript fetch_season_data.R --seasons=2024
+Rscript fetch_season_data.R --seasons=2025
 
 # Step 3: Upload to MongoDB
 node upload_data.js season
@@ -333,7 +336,7 @@ node upload_data.js season
 ### Example 6: File Management Workflow
 ```bash
 # Step 1: Fetch new data (old files are automatically deleted)
-Rscript fetch_season_data.R --seasons=2024
+Rscript fetch_season_data.R --seasons=2025
 
 # Step 2: Immediately process the files (before next run deletes them)
 # Option A: Upload to MongoDB

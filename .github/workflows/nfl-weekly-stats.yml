@@ -134,17 +134,7 @@ jobs:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         MONGODB_DATABASE: ${{ secrets.MONGODB_DATABASE }}
     
-    - name: Upload logs as artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: weekly-stats-logs
-        path: |
-          nfl_player_stats_log.txt
-          upload_errors.json
-          upload_checkpoint.json
-        retention-days: 30
-    
+
     - name: Upload CSV files as artifacts (compressed)
       uses: actions/upload-artifact@v4
       if: always()
