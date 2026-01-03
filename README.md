@@ -13,8 +13,8 @@ This pipeline consists of separate R scripts for data fetching and Node.js scrip
 3. **`fetch_roster_data.R`** - Fetches player roster information
 
 ### Node.js Scripts (Database Upload):
-4. **`upload_nfl_data_to_mongodb.js`** - Uploads data to MongoDB Atlas
-5. **`delete_mongodb_collection.js`** - Deletes MongoDB collections
+4. **`upload_data.js`** - Uploads data to MongoDB Atlas
+5. **`delete_collection.js`** - Deletes MongoDB collections
 
 ## File Management Strategy
 
@@ -40,7 +40,7 @@ Rscript fetch_season_data.R --seasons=2024
 
 # Immediately after, do something with the files:
 # Option 1: Upload to MongoDB (recommended)
-node upload_nfl_data_to_mongodb.js season
+node upload_data.js season
 
 # Option 2: Copy to backup location
 copy data_output\season_stats\*.csv C:\backup\nfl_data\
@@ -151,13 +151,13 @@ After fetching data with R scripts, upload to MongoDB Atlas. **You must specify 
 
 ```bash
 # Upload season statistics
-node upload_nfl_data_to_mongodb.js season
+node upload_data.js season
 
 # Upload weekly statistics  
-node upload_nfl_data_to_mongodb.js weekly
+node upload_data.js weekly
 
 # Upload roster data
-node upload_nfl_data_to_mongodb.js roster
+node upload_data.js roster
 ```
 
 **Valid data types:**
@@ -178,10 +178,10 @@ The upload script will automatically:
 
 ```bash
 # Delete a specific collection
-node delete_mongodb_collection.js season_stats
+node delete_collection.js season_stats
 
 # Delete all collections
-node delete_mongodb_collection.js all
+node delete_collection.js all
 ```
 
 **MongoDB Safety Features:**
@@ -193,8 +193,8 @@ node delete_mongodb_collection.js all
 **Example Usage:**
 ```bash
 # Clean slate before uploading new season data
-node delete_mongodb_collection.js season_stats
-node upload_nfl_data_to_mongodb.js season
+node delete_collection.js season_stats
+node upload_data.js season
 ```
 
 ## File Structure
@@ -203,8 +203,8 @@ node upload_nfl_data_to_mongodb.js season
 ├── fetch_season_data.R              # Season statistics fetcher
 ├── fetch_weekly_data.R              # Weekly statistics fetcher
 ├── fetch_roster_data.R               # Roster data fetcher
-├── upload_nfl_data_to_mongodb.js     # MongoDB upload script
-├── delete_mongodb_collection.js      # MongoDB collection deletion script
+├── upload_data.js                     # MongoDB upload script
+├── delete_collection.js               # MongoDB collection deletion script
 ├── data_output/                      # Output directory
 │   ├── season_stats/                 # Season statistics files
 │   │   ├── season_data_2024_REG.csv
@@ -313,21 +313,21 @@ Rscript fetch_weekly_data.R --seasons=2020:2024
 Rscript fetch_roster_data.R --seasons=2020:2024
 
 # Step 2: Upload all files to MongoDB
-node upload_nfl_data_to_mongodb.js season
-node upload_nfl_data_to_mongodb.js weekly
-node upload_nfl_data_to_mongodb.js roster
+node upload_data.js season
+node upload_data.js weekly
+node upload_data.js roster
 ```
 
 ### Example 5: Clean Slate MongoDB Workflow
 ```bash
 # Step 1: Delete existing collection
-node delete_mongodb_collection.js season_stats
+node delete_collection.js season_stats
 
 # Step 2: Fetch fresh data
 Rscript fetch_season_data.R --seasons=2024
 
 # Step 3: Upload to MongoDB
-node upload_nfl_data_to_mongodb.js season
+node upload_data.js season
 ```
 
 ### Example 6: File Management Workflow
@@ -337,7 +337,7 @@ Rscript fetch_season_data.R --seasons=2024
 
 # Step 2: Immediately process the files (before next run deletes them)
 # Option A: Upload to MongoDB
-node upload_nfl_data_to_mongodb.js season
+node upload_data.js season
 
 # Option B: Copy to backup
 copy data_output\season_stats\*.csv C:\backup\nfl_data\
@@ -345,50 +345,3 @@ copy data_output\season_stats\*.csv C:\backup\nfl_data\
 # Option C: Process with your tools
 python my_analysis.py data_output/season_stats/
 ```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **"The term 'c' is not recognized" Error**: 
-   - **Problem**: You're trying to run R commands in PowerShell
-   - **Solution**: R package installation commands must be run in R or RStudio, not PowerShell
-   - **Correct**: Open R/RStudio → `install.packages(c("nflfastR", "dplyr"))`
-   - **Wrong**: PowerShell → `install.packages(c("nflfastR", "dplyr"))`
-
-2. **"Error: unexpected symbol in 'Rscript'" Error**:
-   - **Problem**: You're trying to run `Rscript` commands in R console
-   - **Solution**: `Rscript` commands must be run in PowerShell/terminal, not in R
-   - **Correct**: PowerShell → `Rscript fetch_season_data.R`
-   - **Wrong**: R Console → `Rscript fetch_season_data.R`
-   - **Fix**: Exit R (`q()`) → Open PowerShell → Run `Rscript` command
-
-3. **R Script Errors**: 
-   - **Problem**: R scripts fail to run
-   - **Solution**: Make sure you've installed the required packages in R/RStudio first
-   - **Check**: Ensure `nflfastR` and `dplyr` packages are installed
-
-4. **MongoDB Authentication**: Ensure `.env` file exists with correct credentials
-5. **Memory Issues**: R scripts load large datasets into memory
-6. **Rate Limiting**: Adjust `BATCH_DELAY_SECONDS` if you hit rate limits from database system
-7. **Disk Space**: Ensure sufficient space for CSV files
-
-## Performance
-
-### R Scripts Performance
-- **Single year**: ~30-60 seconds per year
-- **Multiple years**: ~2-5 minutes for 5 years (with progress updates)
-- **Memory usage**: ~500MB-1GB RAM during processing
-- **Progress tracking**: Real-time updates showing current year and percentage complete
-
-### File Management Benefits
-- **Separate files per year**: Faster processing and uploads
-- **Automatic cleanup**: Prevents project directory from growing large
-- **Smaller file sizes**: ~680KB per year vs 18MB for all years
-- **Better error recovery**: If one year fails, others still succeed
-
-### MongoDB Upload Performance
-- **Multiple files**: Node.js automatically combines all year files
-- **Batch processing**: Efficient uploads with progress tracking
-- **Memory efficient**: Processes smaller files individually
-- **Upload time**: ~10-20 minutes for 5 years of data

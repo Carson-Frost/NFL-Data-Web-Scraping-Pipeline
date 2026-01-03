@@ -115,12 +115,13 @@ jobs:
         SEASON_TYPE: ${{ github.event.inputs.season_type || 'REG' }}
         FETCH_WEEKLY: 'TRUE'
     
-    - name: Upload to Firebase
-      run: node upload_player_stats_to_firebase.js
+    - name: Upload to MongoDB
+      run: |
+        npm run upload_data -- season || true
+        npm run upload_data -- weekly || true
       env:
-        FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-        FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-        FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        MONGODB_DATABASE: ${{ secrets.MONGODB_DATABASE }}
     
     - name: Upload logs as artifacts
       uses: actions/upload-artifact@v4
