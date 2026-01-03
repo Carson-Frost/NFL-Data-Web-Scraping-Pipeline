@@ -12,7 +12,7 @@ Fetch NFL player statistics and roster data using nflfastR, then upload to Mongo
 
 ### 1. Install R Dependencies
 
-Open **R** (`R` in terminal):
+Open **R**:
 
 ```r
 install.packages(c("nflfastR", "dplyr"))
