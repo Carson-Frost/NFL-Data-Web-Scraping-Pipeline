@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       season:
-        description: 'Season year (e.g., 2024)'
+        description: 'Season year (e.g., 2025)'
         required: false
-        default: '2024'
+        default: '2025'
         type: string
       season_type:
         description: 'Season type'
@@ -114,8 +114,8 @@ jobs:
     
     - name: Upload to MongoDB
       run: |
-        npm run upload_data -- season || true
-        npm run upload_data -- weekly || true
+        npm run upload_data season
+        npm run upload_data weekly
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         MONGODB_DATABASE: ${{ secrets.MONGODB_DATABASE }}
