@@ -80,9 +80,6 @@ jobs:
     - name: Install Node.js dependencies
       run: npm install
     
-    - name: Create output directory
-      run: mkdir -p nfl_data_output
-    
     - name: Fetch current season stats (season + weekly)
       run: |
         # Use current season or input
@@ -139,5 +136,7 @@ jobs:
       if: always()
       with:
         name: nfl-weekly-update-csvs
-        path: nfl_data_output/
+        path: |
+          data_output/season_stats/
+          data_output/weekly_stats/
         retention-days: 7

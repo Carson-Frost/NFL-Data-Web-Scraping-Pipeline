@@ -84,9 +84,6 @@ jobs:
     - name: Install Node.js dependencies
       run: npm install
     
-    - name: Create output directory
-      run: mkdir -p nfl_data_output
-    
     - name: Fetch NFL season statistics
       run: |
         # Set parameters if provided
@@ -139,5 +136,5 @@ jobs:
       if: always()
       with:
         name: nfl-season-stats-csv
-        path: nfl_data_output/season_stats.csv
+        path: data_output/season_stats/
         retention-days: 7
