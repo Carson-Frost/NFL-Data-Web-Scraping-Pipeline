@@ -22,8 +22,6 @@ Exit R (`q()`).
 
 ### 2. Install Node Dependencies
 
-In **PowerShell** or **terminal**:
-
 ```bash
 npm install
 ```
@@ -39,7 +37,7 @@ MONGODB_DATABASE=
 
 ### 4. Fetch Data
 
-Run R scripts from **terminal/PowerShell**:
+Run R scripts*:
 
 ```bash
 # Season data (default: 2025, REG season)
@@ -105,8 +103,6 @@ npm run delete_collection season_stats
 # Delete all collections
 npm run delete_collection all
 ```
-
-**WARNING:** This permanently deletes all documents in a collection.
 
 ## File Naming
 
