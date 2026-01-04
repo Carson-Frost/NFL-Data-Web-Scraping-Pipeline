@@ -157,4 +157,3 @@ if (files_created > 0) {
 }
 
 log_message("=== NFL WEEKLY STATS FETCH: Complete ===")
-log_message("Ready for Node.js upload script!")
