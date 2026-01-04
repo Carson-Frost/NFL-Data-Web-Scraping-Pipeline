@@ -33,11 +33,9 @@ npm install
 Create `.env` file in project root:
 
 ```bash
-MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/"
-MONGODB_DATABASE="nfl_data"
+MONGODB_URI=
+MONGODB_DATABASE=
 ```
-
-(Copy from `env-example.txt` if needed)
 
 ### 4. Fetch Data
 
