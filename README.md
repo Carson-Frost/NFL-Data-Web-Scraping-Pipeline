@@ -39,7 +39,7 @@ Rscript fetch_roster_data.R
 **Examples:**
 ```bash
 Rscript fetch_season_data.R --seasons=2022:2025 --season-type=REG+POST
-Rscript fetch_weekly_data.R --seasons=2024
+Rscript fetch_weekly_data.R --seasons=2025
 ```
 
 
