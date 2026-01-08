@@ -4,12 +4,5 @@
 .RData
 node_modules/
 .DS_Store
-.env
 data_output/
 r_packages/
-
-# Firebase/Firestore files
-.firebaserc
-firebase.json
-firestore.indexes.json
-firestore.rules
