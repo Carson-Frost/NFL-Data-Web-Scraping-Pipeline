@@ -18,7 +18,7 @@ args <- commandArgs(trailingOnly = TRUE)
 # Default values
 SEASONS_STR <- "2025"
 SEASON_TYPE <- "REG"
-OUTPUT_DIR <- "data_output/weekly_stats"
+OUTPUT_DIR <- "output/weekly_stats"
 
 # Parse command line arguments
 for (arg in args) {
@@ -71,19 +71,6 @@ log_message("=== NFL WEEKLY STATS FETCH: Starting ===")
 log_message(paste("Seasons:", min(SEASONS), "to", max(SEASONS)))
 log_message(paste("Season type:", SEASON_TYPE))
 log_message(paste("Output directory:", OUTPUT_DIR))
-
-# Clean up old files in the directory
-old_files <- list.files(OUTPUT_DIR, pattern = "*.csv", full.names = TRUE)
-if (length(old_files) > 0) {
-  log_message("Cleaning up old files:")
-  for (file in old_files) {
-    log_message(paste("  Removing:", basename(file)))
-    file.remove(file)
-  }
-  log_message(paste("Removed", length(old_files), "old files"))
-} else {
-  log_message("No old files to clean up")
-}
 
 # ==============================================================================
 # FETCH WEEK-LEVEL STATS BY YEAR

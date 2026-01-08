@@ -1,8 +1,1 @@
-# .gitignore
-*.log
-.Rhistory
-.RData
-node_modules/
-.DS_Store
-data_output/
-r_packages/
+output/

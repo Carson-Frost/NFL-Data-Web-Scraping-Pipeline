@@ -1,6 +1,6 @@
 # NFL Data Pipeline
 
-Fetch NFL player statistics and roster data using nflfastR.
+Fetch NFL player statistics and roster data using **nflfastR**: https://www.nflfastr.com/
 
 ## Requirements
 
@@ -29,6 +29,9 @@ Rscript fetch_weekly_data.R
 
 # Roster data (default: 2025)
 Rscript fetch_roster_data.R
+
+# Schedule data (default: 2025)
+Rscript fetch_schedule_data.R
 ```
 
 **Parameters:**
@@ -39,7 +42,9 @@ Rscript fetch_roster_data.R
 **Examples:**
 ```bash
 Rscript fetch_season_data.R --seasons=2022:2025 --season-type=REG+POST
-Rscript fetch_weekly_data.R --seasons=2025
+Rscript fetch_weekly_data.R --seasons=1999
+Rscript fetch_roster_data.R --seasons=2020:2025
+Rscript fetch_schedule_data.R --seasons=2010
 ```
 
 
@@ -50,16 +55,16 @@ Rscript fetch_weekly_data.R --seasons=2025
 | `fetch_season_data.R` | Fetch player season statistics |
 | `fetch_weekly_data.R` | Fetch player weekly statistics |
 | `fetch_roster_data.R` | Fetch player roster information |
+| `fetch_schedules.R` | Fetch season schedule information |
 
 
 ## Data Output
 
-CSV files are saved to `data_output/`:
-- `data_output/season_stats/` — Season statistics
-- `data_output/weekly_stats/` — Weekly statistics
-- `data_output/roster_data/` — Roster information
-
-**Note:** Old files are automatically deleted when new data is fetched.
+CSV files are saved to `output/`:
+- `output/season_stats/` — Season statistics
+- `output/weekly_stats/` — Weekly statistics
+- `output/roster_data/` — Roster information
+- `output/schedule_data/` — Schedule information
 
 
 ## File Naming
@@ -70,10 +75,6 @@ Examples:
 - `season_data_2025_REG.csv`
 - `weekly_data_2025_REG+POST.csv`
 - `roster_data_2025.csv`
+- `schedule_data_2025.csv`
 
 Each year gets its own file. Range requests (e.g., `--seasons=2022:2025`) create separate files for each year.
-
-
-## Data Source
-
-Data from **nflfastR**: https://www.nflfastr.com/

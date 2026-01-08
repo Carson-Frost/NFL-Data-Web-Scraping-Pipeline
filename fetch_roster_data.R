@@ -17,7 +17,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 # Default values
 SEASONS_STR <- "2025"
-OUTPUT_DIR <- "data_output/roster_data"
+OUTPUT_DIR <- "output/roster_data"
 
 # Parse command line arguments
 for (arg in args) {
@@ -62,18 +62,9 @@ log_message("=== NFL ROSTER DATA FETCH: Starting ===")
 log_message(paste("Seasons:", min(SEASONS), "to", max(SEASONS)))
 log_message(paste("Output directory:", OUTPUT_DIR))
 
-# Clean up old files in the directory
-old_files <- list.files(OUTPUT_DIR, pattern = "*.csv", full.names = TRUE)
-if (length(old_files) > 0) {
-  log_message("Cleaning up old files:")
-  for (file in old_files) {
-    log_message(paste("  Removing:", basename(file)))
-    file.remove(file)
-  }
-  log_message(paste("Removed", length(old_files), "old files"))
-} else {
-  log_message("No old files to clean up")
-}
+# ==============================================================================
+# FETCH ROSTER DATA BY YEAR
+# ==============================================================================
 
 # ==============================================================================
 # FETCH ROSTER DATA BY YEAR
